@@ -9,6 +9,8 @@ import { Banknote, BarChart3, CalendarCog, Trash2, UsersRound } from 'lucide-rea
 import toast from 'react-hot-toast';
 
 const ORDER_PAGE_SIZE = 8;
+const SLOT_LIST_PAGE_SIZE = 5;
+const USER_PAGE_SIZE = 6;
 const EXCLUDED_CUSTOMER = 'Oka Pradnya';
 const SLOT_CATEGORY_FILTERS = [
   { value: 'all', label: 'Semua' },
@@ -103,6 +105,8 @@ const AdminDashboard = () => {
   const [isSavingSlot, setIsSavingSlot] = useState(false);
   const [deletingSlotId, setDeletingSlotId] = useState(null);
   const [ordersPage, setOrdersPage] = useState(1);
+  const [slotListPage, setSlotListPage] = useState(1);
+  const [userPage, setUserPage] = useState(1);
   const [deletingUserId, setDeletingUserId] = useState(null);
 
   useEffect(() => {
@@ -119,18 +123,6 @@ const AdminDashboard = () => {
     });
   }, [ticketTypes]);
 
-  const totalOrderPages = Math.max(1, Math.ceil(orders.length / ORDER_PAGE_SIZE));
-
-  useEffect(() => {
-    setOrdersPage((current) => (current > totalOrderPages ? totalOrderPages : current));
-  }, [totalOrderPages]);
-
-  const paginatedOrders = useMemo(() => {
-    if (!orders.length) return [];
-    const start = (ordersPage - 1) * ORDER_PAGE_SIZE;
-    return orders.slice(start, start + ORDER_PAGE_SIZE);
-  }, [orders, ordersPage]);
-
   const sortedSlots = useMemo(() => {
     if (!slots.length) return [];
     return [...slots].sort((a, b) => {
@@ -146,6 +138,40 @@ const AdminDashboard = () => {
     }
     return sortedSlots.filter((slot) => slot.ticket_type?.category === slotCategoryFilter);
   }, [sortedSlots, slotCategoryFilter]);
+
+  const totalSlotPages = Math.max(1, Math.ceil(filteredSlots.length / SLOT_LIST_PAGE_SIZE));
+  const totalUserPages = Math.max(1, Math.ceil(users.length / USER_PAGE_SIZE));
+  const totalOrderPages = Math.max(1, Math.ceil(orders.length / ORDER_PAGE_SIZE));
+
+  useEffect(() => {
+    setOrdersPage((current) => (current > totalOrderPages ? totalOrderPages : current));
+  }, [totalOrderPages]);
+
+  useEffect(() => {
+    setSlotListPage((current) => (current > totalSlotPages ? totalSlotPages : current));
+  }, [totalSlotPages]);
+
+  useEffect(() => {
+    setUserPage((current) => (current > totalUserPages ? totalUserPages : current));
+  }, [totalUserPages]);
+
+  const paginatedOrders = useMemo(() => {
+    if (!orders.length) return [];
+    const start = (ordersPage - 1) * ORDER_PAGE_SIZE;
+    return orders.slice(start, start + ORDER_PAGE_SIZE);
+  }, [orders, ordersPage]);
+
+  const paginatedSlots = useMemo(() => {
+    if (!filteredSlots.length) return [];
+    const start = (slotListPage - 1) * SLOT_LIST_PAGE_SIZE;
+    return filteredSlots.slice(start, start + SLOT_LIST_PAGE_SIZE);
+  }, [filteredSlots, slotListPage]);
+
+  const paginatedUsers = useMemo(() => {
+    if (!users.length) return [];
+    const start = (userPage - 1) * USER_PAGE_SIZE;
+    return users.slice(start, start + USER_PAGE_SIZE);
+  }, [users, userPage]);
 
   const resetSlotForm = () => {
     setSlotForm({
@@ -258,6 +284,8 @@ const AdminDashboard = () => {
     return Number.isNaN(dt.getTime()) ? '-' : dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
   };
   const orderPages = Array.from({ length: totalOrderPages }, (_, idx) => idx + 1);
+  const slotPages = Array.from({ length: totalSlotPages }, (_, idx) => idx + 1);
+  const userPages = Array.from({ length: totalUserPages }, (_, idx) => idx + 1);
 
   const sanitizedPending = overview?.pending_orders || 0;
 
@@ -392,7 +420,7 @@ const AdminDashboard = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user) => (
+                {paginatedUsers.map((user) => (
                   <tr key={user.id} className="border-t border-cream/70">
                     <td className="py-3 font-semibold">{user.name}</td>
                     <td>{user.email}</td>
@@ -411,7 +439,7 @@ const AdminDashboard = () => {
                     </td>
                   </tr>
                 ))}
-                {!users.length && (
+                {!paginatedUsers.length && (
                   <tr>
                     <td colSpan={6} className="py-6 text-center text-sm text-ebony/60">
                       Belum ada pengguna terdaftar.
@@ -421,6 +449,40 @@ const AdminDashboard = () => {
               </tbody>
             </table>
           </div>
+          {users.length > USER_PAGE_SIZE && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs uppercase tracking-[0.3em]">
+              <button
+                type="button"
+                onClick={() => setUserPage((page) => Math.max(1, page - 1))}
+                disabled={userPage === 1}
+                className="rounded-full border border-cream/70 px-3 py-1 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Sebelumnya
+              </button>
+              <div className="flex flex-wrap gap-1 text-[11px]">
+                {userPages.map((page) => (
+                  <button
+                    key={`user-page-${page}`}
+                    type="button"
+                    onClick={() => setUserPage(page)}
+                    className={`h-7 w-7 rounded-full font-semibold ${
+                      page === userPage ? 'bg-gold text-ebony' : 'border border-cream/70 text-ebony/70 dark:text-cream/70'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setUserPage((page) => Math.min(totalUserPages, page + 1))}
+                disabled={userPage === totalUserPages}
+                className="rounded-full border border-cream/70 px-3 py-1 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Berikutnya
+              </button>
+            </div>
+          )}
         </section>
 
         <section className="glass-panel rounded-3xl p-6">
@@ -448,7 +510,7 @@ const AdminDashboard = () => {
           </div>
 
           <div className="mt-4 overflow-x-auto">
-            {filteredSlots.length ? (
+            {paginatedSlots.length ? (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-xs uppercase text-ebony/50 dark:text-cream/60">
@@ -461,7 +523,7 @@ const AdminDashboard = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredSlots.map((slot) => (
+                  {paginatedSlots.map((slot) => (
                     <tr key={slot.id} className="border-t border-cream/50 text-sm dark:border-white/5">
                       <td className="py-2 font-semibold">{formatSlotDate(slot.visit_date)}</td>
                       <td>{`${slot.start_time?.slice(0, 5)} - ${slot.end_time?.slice(0, 5)}`}</td>
@@ -501,6 +563,40 @@ const AdminDashboard = () => {
               </p>
             )}
           </div>
+          {filteredSlots.length > SLOT_LIST_PAGE_SIZE && (
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs uppercase tracking-[0.3em]">
+              <button
+                type="button"
+                onClick={() => setSlotListPage((page) => Math.max(1, page - 1))}
+                disabled={slotListPage === 1}
+                className="rounded-full border border-cream/70 px-3 py-1 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Sebelumnya
+              </button>
+              <div className="flex flex-wrap gap-1 text-[11px]">
+                {slotPages.map((page) => (
+                  <button
+                    key={`slot-page-${page}`}
+                    type="button"
+                    onClick={() => setSlotListPage(page)}
+                    className={`h-7 w-7 rounded-full font-semibold ${
+                      page === slotListPage ? 'bg-gold text-ebony' : 'border border-cream/70 text-ebony/70 dark:text-cream/70'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSlotListPage((page) => Math.min(totalSlotPages, page + 1))}
+                disabled={slotListPage === totalSlotPages}
+                className="rounded-full border border-cream/70 px-3 py-1 font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Berikutnya
+              </button>
+            </div>
+          )}
         </section>
 
         <section className="glass-panel rounded-3xl p-6">
