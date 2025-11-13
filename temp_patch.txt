@@ -1,0 +1,34 @@
+*** Begin Patch
+*** Update File: app\Services\MidtransService.php
+@@
+-use Midtrans\Config as MidtransConfig;
+-use Midtrans\Snap;
++use Exception;
++use Midtrans\Config as MidtransConfig;
++use Midtrans\Snap;
++use Midtrans\Transaction;
+@@
+     public function createSnap(array $payload): array
+     {
+         $transaction = Snap::createTransaction($payload);
+         return [
+             'token' => $transaction->token,
+             'redirect_url' => $transaction->redirect_url,
+         ];
+     }
+ 
++    public function transactionStatus(string $orderId): ?array
++    {
++        try {
++            $status = Transaction::status($orderId);
++        } catch (Exception $e) {
++            report($e);
++            return null;
++        }
++
++        return json_decode(json_encode($status), true);
++    }
++
+     public function verifySignature(array $payload): bool
+     {
+*** End Patch
