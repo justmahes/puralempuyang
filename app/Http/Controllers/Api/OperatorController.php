@@ -61,7 +61,7 @@ class OperatorController extends Controller
             ->firstOrFail();
 
         if ($item->status === 'used') {
-            return response()->json(['message' => 'Ticket already used', 'ticket' => $item], 409);
+            return response()->json(['message' => 'Tiket Sudah Dipakai', 'ticket' => $item], 409);
         }
         if (!in_array($item->order->status, ['paid', 'used'], true)) {
             return response()->json(['message' => 'Payment not settled', 'ticket' => $item], 422);

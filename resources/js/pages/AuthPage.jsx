@@ -25,7 +25,7 @@ const AuthPage = ({ mode = 'login' }) => {
   };
 
   const roleAccessMap = {
-    admin: ['/admin', '/operator', '/profile', '/booking', '/'],
+    admin: ['/admin', '/profile', '/booking', '/'],
     operator: ['/operator', '/profile'],
     user: ['/dashboard', '/profile', '/booking', '/'],
   };

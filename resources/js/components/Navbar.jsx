@@ -106,7 +106,7 @@ const Navbar = () => {
 
           {user ? (
             <div className="hidden items-center gap-3 md:flex">
-              <span className="text-sm font-medium">Halo, {user.name.split(' ')[0]}</span>
+              <span className="text-sm font-medium">Halo {user.name.split(' ')[0]}</span>
               <div className="flex items-center gap-2">
                 <Link
                   to="/profile"

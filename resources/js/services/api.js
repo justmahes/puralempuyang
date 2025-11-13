@@ -54,6 +54,7 @@ export const endpoints = {
   adminTicket: '/tickets',
   adminSlot: '/admin/slots',
   adminOperators: '/admin/operators',
+  adminUsers: '/admin/users',
   exportTransactions: '/admin/transactions/export',
   operatorTickets: '/operator/tickets',
   operatorStats: '/operator/stats',

@@ -66,6 +66,14 @@ const AdminDashboard = () => {
     },
   });
 
+  const { data: usersData } = useQuery({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      const { data } = await api.get(endpoints.adminUsers);
+      return data.data || [];
+    },
+  });
+
   const orders = useMemo(
     () => (ordersData || []).filter((order) => order?.user?.name !== EXCLUDED_CUSTOMER),
     [ordersData]
@@ -81,6 +89,7 @@ const AdminDashboard = () => {
 
   const slots = useMemo(() => slotsData || [], [slotsData]);
   const ticketTypes = useMemo(() => ticketTypesData || [], [ticketTypesData]);
+  const users = useMemo(() => usersData || [], [usersData]);
 
   const [slotForm, setSlotForm] = useState({
     ticket_type_id: '',
@@ -94,6 +103,7 @@ const AdminDashboard = () => {
   const [isSavingSlot, setIsSavingSlot] = useState(false);
   const [deletingSlotId, setDeletingSlotId] = useState(null);
   const [ordersPage, setOrdersPage] = useState(1);
+  const [deletingUserId, setDeletingUserId] = useState(null);
 
   useEffect(() => {
     if (!ticketTypes.length) {
@@ -213,6 +223,22 @@ const AdminDashboard = () => {
     }
   };
 
+  const deleteUser = async (userId) => {
+    if (!window.confirm('Hapus permanen data pengguna ini?')) {
+      return;
+    }
+    setDeletingUserId(userId);
+    try {
+      await api.delete(endpoints.adminUsers, { data: { id: userId } });
+      toast.success('Pengguna dihapus');
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Gagal menghapus pengguna');
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   const formatCurrency = (value) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
   const formatDate = (value) => {
     if (!value) return '-';
@@ -225,6 +251,11 @@ const AdminDashboard = () => {
     return Number.isNaN(dt.getTime())
       ? '-'
       : dt.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' });
+  };
+  const formatJoinDate = (value) => {
+    if (!value) return '-';
+    const dt = new Date(value);
+    return Number.isNaN(dt.getTime()) ? '-' : dt.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
   };
   const orderPages = Array.from({ length: totalOrderPages }, (_, idx) => idx + 1);
 
@@ -337,6 +368,59 @@ const AdminDashboard = () => {
               Buat Akun
             </button>
           </form>
+        </section>
+
+        <section className="glass-panel rounded-3xl p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm text-gold">Kelola Pengguna</p>
+              <h3 className="font-display text-2xl">Daftar Wisatawan Terdaftar</h3>
+              <p className="text-xs text-ebony/60">Untuk menjaga keakuratan, data ini hanya bisa dilihat atau dihapus.</p>
+            </div>
+            <span className="rounded-full bg-gold/10 px-4 py-1 text-xs font-semibold text-gold">{users.length} akun</span>
+          </div>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase text-ebony/60">
+                  <th className="py-2">Nama</th>
+                  <th>Email</th>
+                  <th>Kategori</th>
+                  <th>Order</th>
+                  <th>Bergabung</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} className="border-t border-cream/70">
+                    <td className="py-3 font-semibold">{user.name}</td>
+                    <td>{user.email}</td>
+                    <td className="capitalize">{user.citizenship_type || '-'}</td>
+                    <td>{user.orders_count || 0}</td>
+                    <td>{formatJoinDate(user.created_at)}</td>
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => deleteUser(user.id)}
+                        disabled={deletingUserId === user.id}
+                        className="inline-flex items-center gap-2 rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-60"
+                      >
+                        <Trash2 size={14} /> Hapus
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {!users.length && (
+                  <tr>
+                    <td colSpan={6} className="py-6 text-center text-sm text-ebony/60">
+                      Belum ada pengguna terdaftar.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <section className="glass-panel rounded-3xl p-6">

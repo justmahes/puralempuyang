@@ -33,7 +33,7 @@ class AdminController extends Controller
             })
             ->count();
 
-        $trend = Order::selectRaw('DATE(created_at) as label, SUM(amount) as total')
+        $trend = Order::selectRaw('DATE(created_at) as label, SUM(amount) as total, SUM(quantity) as tickets')
             ->where('created_at', '>=', now()->subDays(14))
             ->whereDoesntHave('user', function ($query) {
                 $query->whereIn('name', self::EXCLUDED_CUSTOMERS);
@@ -104,6 +104,30 @@ class AdminController extends Controller
         $operator = User::where('id', $data['id'])->where('role', 'operator')->firstOrFail();
         $operator->delete();
         return response()->json(['message' => 'Operator removed']);
+    }
+
+    public function users()
+    {
+        $users = User::where('role', 'user')
+            ->select('id', 'name', 'email', 'phone', 'citizenship_type', 'created_at')
+            ->withCount('orders')
+            ->orderByDesc('created_at')
+            ->limit(200)
+            ->get();
+
+        return response()->json(['data' => $users]);
+    }
+
+    public function deleteUser(Request $request)
+    {
+        $data = Validator::make($request->all(), [
+            'id' => 'required|exists:users,id',
+        ])->validate();
+
+        $user = User::where('id', $data['id'])->where('role', 'user')->firstOrFail();
+        $user->delete();
+
+        return response()->json(['message' => 'Pengguna dihapus']);
     }
 
     public function export(Request $request)

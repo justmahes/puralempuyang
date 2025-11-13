@@ -41,6 +41,8 @@ Route::middleware('auth.jwt')->group(function () {
         Route::get('admin/transactions/export', [AdminController::class, 'export']);
         Route::post('admin/operators', [AdminController::class, 'storeOperator']);
         Route::delete('admin/operators', [AdminController::class, 'deleteOperator']);
+        Route::get('admin/users', [AdminController::class, 'users']);
+        Route::delete('admin/users', [AdminController::class, 'deleteUser']);
 
         Route::get('admin/slots', [TicketController::class, 'adminSlots']);
         Route::post('admin/slots', [TicketController::class, 'createSlot']);
