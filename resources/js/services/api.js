@@ -55,12 +55,25 @@ export const endpoints = {
   adminSlot: '/admin/slots',
   adminOperators: '/admin/operators',
   adminUsers: '/admin/users',
+  adminPhotoPoints: '/admin/photo-points',
   exportTransactions: '/admin/transactions/export',
   operatorTickets: '/operator/tickets',
   operatorStats: '/operator/stats',
   operatorValidate: '/operator/validate',
+  operatorSnapshot: '/operator/snapshot',
+  operatorValidateBatch: '/operator/validate/batch',
+  // Photo queue
+  photoPoints: '/photo/points',
+  photoQueueList: '/photo/queue',
+  photoCallNext: '/photo/queue/call-next',
+  photoMarkShooting: '/photo/queue/mark-shooting',
+  photoComplete: '/photo/queue/complete',
+  photoSkip: '/photo/queue/skip',
+  photoRecall: '/photo/queue/recall',
+  photoUpload: '/photo/upload',
+  photoMyAssets: '/photo/my-assets',
+  photoEnqueue: '/photo-queue/enqueue',
+  photoStatus: '/photo-queue/status',
 };
 
 export default api;
-
-

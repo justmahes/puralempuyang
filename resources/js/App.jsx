@@ -8,6 +8,7 @@ import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import OperatorDashboard from './pages/OperatorDashboard';
 import ProfilePage from './pages/ProfilePage';
+import PhotoQueuePage from './pages/PhotoQueuePage';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -48,6 +49,7 @@ const AppRoutes = () => {
 
         <Route element={<ProtectedRoute roles={['user', 'admin', 'operator']} fallback="/login" />}>
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/photo-queue" element={<PhotoQueuePage />} />
         </Route>
 
         <Route path="*" element={<NotFound />} />
@@ -57,7 +59,6 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
-
 
 
 

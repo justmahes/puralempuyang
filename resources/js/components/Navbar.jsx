@@ -177,14 +177,14 @@ const Navbar = () => {
               </div>
               <div className="border-t border-cream/60 pt-4 dark:border-white/10">
                 {user ? (
-                  <div className="flex flex-col gap-3">
-                    <Link
-                      to="/profile"
-                      onClick={closeMobile}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-cream/70 px-4 py-3"
-                    >
-                      <UserRound size={18} /> Kelola Profil
-                    </Link>
+              <div className="flex flex-col gap-3">
+                <Link
+                  to="/profile"
+                  onClick={closeMobile}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-cream/70 px-4 py-3"
+                >
+                  <UserRound size={18} /> Kelola Profil
+                </Link>
                     {primaryLink && (
                       <NavLink
                         to={primaryLink.to}

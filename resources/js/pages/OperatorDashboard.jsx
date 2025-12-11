@@ -3,9 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import api, { endpoints } from '../services/api';
+import { saveSnapshot, getSnapshot, queueValidation, getQueuedValidations, clearQueuedValidations, markLocalUsed, isLocallyUsed } from '../services/idb';
 import MetricCard from '../components/dashboard/MetricCard';
 import OperatorScanner from '../components/dashboard/OperatorScanner';
 import toast from 'react-hot-toast';
+import PhotoQueuePanel from '../components/operator/PhotoQueuePanel';
 import { ShieldCheck, Ticket } from 'lucide-react';
 
 const TICKET_PAGE_SIZE = 8;
@@ -33,6 +35,7 @@ const OperatorDashboard = () => {
   const [logPage, setLogPage] = useState(1);
 
   const ticketsList = tickets || [];
+  const [offlineTickets, setOfflineTickets] = useState([]);
   const recentLogs = stats?.recent || [];
 
   const totalTicketPages = Math.max(1, Math.ceil(ticketsList.length / TICKET_PAGE_SIZE));
@@ -46,13 +49,34 @@ const OperatorDashboard = () => {
     setLogPage((current) => (current > totalLogPages ? totalLogPages : current));
   }, [totalLogPages]);
 
+  // Load snapshot when offline or request fails
+  useEffect(() => {
+    const loadSnapshot = async () => {
+      try {
+        if (!navigator.onLine) {
+          const snap = await getSnapshot();
+          setOfflineTickets(snap.items || []);
+        } else {
+          // Save snapshot when online for future offline use
+          if (ticketsList.length) {
+            await saveSnapshot(ticketsList, { generated_at: new Date().toISOString() });
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    };
+    loadSnapshot();
+  }, [ticketsList]);
+
   const ticketPages = useMemo(() => Array.from({ length: totalTicketPages }, (_, idx) => idx + 1), [totalTicketPages]);
   const logPages = useMemo(() => Array.from({ length: totalLogPages }, (_, idx) => idx + 1), [totalLogPages]);
 
+  const effectiveTickets = navigator.onLine ? ticketsList : (offlineTickets || []);
   const paginatedTickets = useMemo(() => {
     const start = (ticketPage - 1) * TICKET_PAGE_SIZE;
-    return ticketsList.slice(start, start + TICKET_PAGE_SIZE);
-  }, [ticketsList, ticketPage]);
+    return effectiveTickets.slice(start, start + TICKET_PAGE_SIZE);
+  }, [effectiveTickets, ticketPage]);
 
   const paginatedLogs = useMemo(() => {
     const start = (logPage - 1) * LOG_PAGE_SIZE;
@@ -103,13 +127,57 @@ const OperatorDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ['operator-stats'] });
       queryClient.invalidateQueries({ queryKey: ['operator-tickets'] });
     },
-    onError: (error) => toast.error(error.response?.data?.message || 'Validasi gagal'),
+    onError: async (error, variables) => {
+      const offline = !navigator.onLine || !error?.response;
+      if (offline) {
+        await queueValidation(variables);
+        await markLocalUsed(variables);
+        playBeep();
+        toast('Offline: tiket di-antri sinkron');
+      } else {
+        toast.error(error.response?.data?.message || 'Validasi gagal');
+      }
+    },
   });
 
   return (
     <div className="min-h-screen bg-cream text-ebony dark:bg-ebony dark:text-cream">
       <Navbar />
       <main className="mx-auto max-w-6xl px-6 pt-28 pb-20 space-y-10">
+        {/* Offline indicator + Sync */}
+        <div className="flex items-center justify-between rounded-2xl border border-cream/60 p-3 text-xs dark:border-white/10">
+          <span className={navigator.onLine ? 'text-green-600' : 'text-amber-600'}>
+            {navigator.onLine ? 'ONLINE' : 'OFFLINE (scan tetap bisa, sinkron saat online)'}
+          </span>
+          <button
+            type="button"
+            className="rounded-full border border-cream/60 px-3 py-1 dark:border-white/20"
+            onClick={async () => {
+              try {
+                // Pull fresh snapshot when online
+                if (navigator.onLine) {
+                  const { data } = await api.get(endpoints.operatorTickets);
+                  await saveSnapshot(data.data || [], { generated_at: new Date().toISOString() });
+                  toast.success('Snapshot diperbarui');
+                }
+                const pending = await getQueuedValidations();
+                if (pending.length && navigator.onLine) {
+                  await api.post(endpoints.operatorValidate + '/batch', { items: pending });
+                  await clearQueuedValidations();
+                  toast.success('Sinkronisasi sukses');
+                  queryClient.invalidateQueries({ queryKey: ['operator-tickets'] });
+                  queryClient.invalidateQueries({ queryKey: ['operator-stats'] });
+                } else if (!pending.length) {
+                  toast('Tidak ada data untuk sinkron');
+                }
+              } catch (e) {
+                toast.error('Gagal sinkron');
+              }
+            }}
+          >
+            Sinkronkan
+          </button>
+        </div>
         {/* ======= STAT CARD ======= */}
         <div className="grid gap-4 md:grid-cols-2">
           <MetricCard title="Validasi Hari Ini" value={stats?.validated_today || 0} icon={ShieldCheck} />
@@ -301,6 +369,9 @@ const OperatorDashboard = () => {
             </div>
           )}
         </section>
+
+        {/* ======= ANTREAN FOTO ======= */}
+        <PhotoQueuePanel />
       </main>
       <Footer />
     </div>

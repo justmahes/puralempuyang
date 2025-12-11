@@ -6,6 +6,12 @@ import { Toaster } from 'react-hot-toast';
 import AppRoutes from './App';
 import { AuthProvider } from './context/AuthContext';
 import './index.css';
+// Register minimal service worker for offline operator
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
 
 const queryClient = new QueryClient();
 

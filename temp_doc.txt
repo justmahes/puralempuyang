@@ -1,0 +1,425 @@
+﻿PERANCANGAN SISTEM INFORMASI E-TICKETING PADAPURA LEMPUYANG BERBASIS WEBSITE MENGGUNAKANFRAMEWORK LARAVEL
+
+PROPOSAL TUGAS AKHIR
+
+DIAJUKAN SEBAGAI SALAH SATU SYARAT UNTUK MENYUSUN
+TUGAS AKHIR PROGRAM STUDI S1-SISTEM INFORMASI
+
+
+
+Oleh:
+
+I GEDE OKA PRADNYA SANTIKA (220030198)
+
+
+
+INSTITUT TEKNOLOGI DAN BISNIS
+(ITB) STIKOM BALI
+2025
+
+Halaman ini sengaja dikosongkan
+PERSETUJUANUJIAN PROPOSAL TUGAS AKHIR
+
+PERANCANGAN SISTEM INFORMASI E-TICKETING PADAPURA LEMPUYANG BERBASIS WEBSITE MENGGUNAKANFRAMEWORK LARAVEL
+
+Oleh:
+I GEDE OKA PRADNYA SANTIKA (220030198)
+
+
+Dosen PembimbingTanda TanganTanggal
+
+
+
+I Gede Harsemadi, S.Kom., M.T.                           ..â?▌â?▌â?▌â?▌â?▌.      â?▌â?▌â?▌â?▌â?▌.
+
+
+
+    Ir. I Wayan Karang Utama, S.Kom., M.Kom            â?▌â?▌â?▌â?▌â?▌â?▌â?▌â?▌â?▌â?▌â?▌..
+
+
+
+
+Denpasar, â?▌â?▌â?▌â?▌â?▌â?▌â?▌
+Mengetahui,
+Ketua Program Studi Sistem Informasi
+
+
+
+
+Pande Putu Gede Putra Pertama, S.T., M.T.
+Halaman ini sengaja dikosongkan.
+DAFTAR ISI
+
+DAFTAR TABEL
+
+Tabel 2.1 State Of The Art9
+Tabel 2.2 Simbol-simbol Flowchart16
+Tabel 2.3 Simbol-simbol DFD26
+Tabel 2.4 Simbol-simbol ERD29
+Tabel 4.1 Jadwal Kerja41
+
+Halaman ini sengaja dikosongkan
+DAFTAR GAMBAR
+
+Gambar 2. 1 Letak Geografis Pura Lempuyang14
+Gambar 2.2 Logo Visual Studio Code19
+Gambar 2.3 Logo XAMPP19
+Gambar 2.4 Logo Laravel20
+Gambar 2.5 Logo HTML (HyperText Markup Language)21
+Gambar 2.6 Logo CSS (Cascading Style Sheets)21
+Gambar 2.7 Logo PHP: Hypertext Preprocessor22
+Gambar 2.8 Logo PhpMyAdmin22
+Gambar 2.9 Alur Metode Waterfall23
+
+Halaman ini sengaja dikosongkan
+BAB IPENDAHULUAN
+
+Latar Belakang
+Perkembangan teknologi informasi dalam satu dekade terakhir telah memberikan dampak besar terhadap berbagai sektor kehidupan, termasuk pariwisata dan pelayanan publik. Digitalisasi menjadi salah satu strategi utama dalam meningkatkan efisiensi, transparansi, dan kenyamanan layanan bagi masyarakat. Salah satu bentuk penerapan digitalisasi tersebut adalah sistem electronic ticketing atau e-ticketing, yaitu sistem pemesanan dan pembayaran tiket secara daring. Menurut Anshori et al., penerapan e-ticketing dalam sektor pariwisata terbukti mampu mengurangi antrean panjang, mempercepat transaksi, serta meningkatkan kepuasan pengguna karena kemudahan akses dan efisiensi waktu[1].Seiring dengan meningkatnya kebutuhan akan layanan cepat dan efisien, pengembangan sistem berbasis website menjadi solusi utama dalam mewujudkan transformasi digital tersebut. Website merupakan platform yang paling efektif dan fleksibel dalam menyediakan layanan pemesanan tiket secara daring karena dapat diakses kapan saja dan di mana saja, serta mampu menampilkan informasi secara real-time kepada pengguna maupun pengelola. Penggunaan platform website juga dipilih karena lebih sesuai dengan karakteristik wisatawan, terutama turis asing yang umumnya tidak ingin menginstal aplikasi tambahan hanya untuk mengakses satu destinasi wisata. Website dapat diakses secara langsung melalui browser tanpa instalasi, sehingga lebih praktis, cepat, dan kompatibel dengan semua perangkat. Hal ini menjadikan website pilihan yang lebih efektif dibandingkan aplikasi mobile untuk mendukung proses e-ticketing di Pura Lempuyang.Oleh karena itu, penerapan sistem informasie-ticketingberbasis website menjadi salah satu langkah strategis untuk meningkatkan mutu pelayanan di sektor pariwisata modern.
+Pura Lempuyang Luhur merupakan salah satu destinasi wisata religius yang terkenal di Bali dan menjadi tujuan utama wisatawan lokal maupun mancanegara. Peningkatan jumlah kunjungan setiap tahunnya memberikan dampak positif terhadap sektor ekonomi daerah, namun pada saat yang sama menimbulkan permasalahan dalam pengelolaan tiket masuk dan antrian wisatawan. Berdasarkan hasil observasi pra-penelitian yang dilakukan pada 14 November 2025, tercatat rata-rata 300â?"350 pengunjung per hari pada hari biasa. Pada periode akhir pekan atau musim ramai (peak season), jumlah tersebut dapat meningkat hingga dua kali lipat, menyebabkan antrean di loket tiket berlangsung cukup lama dengan waktu tunggu rata-rata 20â?"30 menit. Data jumlah pengunjung dan estimasi waktu tunggu tersebut diperoleh melalui observasi langsung peneliti serta konfirmasi melalui wawancara dengan petugas loket Pura Lempuyang pada pra-penelitian tanggal 14 November 2025. Kondisi ini menunjukkan bahwa sistem manual yang masih digunakan menimbulkan ketidakefisienan, baik bagi pengunjung yang harus menunggu lama, maupun bagi pengelola yang kesulitan mencatat transaksi dan mengontrol kapasitas pengunjung harian.
+Penelitian yang dilakukan oleh Fridhayanti et al. [2] berjudul Perancangan Aplikasi Sistem Informasi Pemesanan Tiket Bus Online (E-Ticketing) pada PO. Handoyo menunjukkan bahwa transformasi sistem manual menjadi aplikasi daring mampu meningkatkan efisiensi transaksi dan mengurangi antrean secara signifikan. Sistem yang dikembangkan dengan tahapan Research and Development (R&D) dan model ADDIE berhasil mengoptimalkan komunikasi antara pengguna dan penyedia layanan[2]. Penelitian tersebut menegaskan bahwa penerapan sistem informasi e-ticketing dapat meminimalkan kesalahan prosedur, mempercepat proses pemesanan, dan meningkatkan kepuasan pengguna. Hasil penelitian ini menjadi dasar kuat bahwa sistem serupa dapat diimplementasikan pada sektor wisata religius seperti Pura Lempuyang yang memiliki karakteristik pengunjung padat dan pengelolaan tiket yang kompleks.
+Selain itu, beberapa penelitian lain menunjukkan efektivitas penggunaan framework Laravel dalam pengembangan sistem e-ticketing. Malasari  mengembangkan sistem e-ticketing pada Dander Water Park menggunakan Laravel 7.29.3 dan Midtrans Payment Gateway, yang terbukti meningkatkan efisiensi transaksi dan keamanan data[3]. Wijaya dan Pakereng juga merancang aplikasi e-ticketing pada agen bus berbasis website menggunakan Laravel dan metode Waterfall, yang berhasil mengurangi antrean fisik dan mempercepat validasi tiket[4]. Penelitian Putra et al. mengembangkan sistem e-ticketing untuk wisata pantai Gunungkidul menggunakan Laravel, yang memperlihatkan kemudahan dalam pengelolaan data pengunjung dan transaksi secara digital [5]. Ketiga penelitian tersebut memperkuat argumentasi bahwa framework Laravel memiliki kemampuan tinggi dalam membangun sistem berbasis website yang aman, cepat, dan mudah dikembangkan.
+Berdasarkan kajian tersebut, dapat disimpulkan bahwa penerapan sistem informasi e-ticketing berbasis website pada Pura Lempuyang merupakan langkah strategis untuk mendukung transformasi digital di sektor pariwisata religius. Dengan memanfaatkan framework Laravel dan metode Waterfall, sistem dapat dikembangkan secara terstruktur melalui tahapan analisis, perancangan, implementasi, pengujian, dan pemeliharaan. Penerapan sistem ini diharapkan mampu mengatasi permasalahan pelayanan manual, meningkatkan efisiensi operasional pengelola, serta memberikan pengalaman yang lebih baik bagi wisatawan. Selain itu, penelitian ini dapat menjadi referensi dan acuan bagi destinasi wisata lain di Bali dalam mengembangkan layanan digital yang berkelanjutan dan modern.
+Namun demikian, terdapat permasalahan lain yang perlu diperhatikan dalam penerapan sistem e-ticketing di Pura Lempuyang, yaitu kondisi infrastruktur jaringan di lokasi wisata. Pura Lempuyang berada di kawasan dataran tinggi yang menyebabkan stabilitas sinyal internet tidak selalu optimal, terutama di area loket dan pos pemeriksaan tempat proses validasi tiket dilakukan. Sistem validasi QR Code yang bekerja secara real-time sangat bergantung pada ketersediaan koneksi internet untuk mengubah status tiket menjadi used dan mencegah terjadinya double-entry. Apabila koneksi internet mengalami gangguan, proses validasi tiket dapat terhenti sehingga berpotensi menimbulkan antrean yang lebih panjang dibandingkan sistem manual. Oleh karena itu, penelitian ini perlu mempertimbangkan mekanisme pendukung seperti offline mode atau local caching pada perangkat petugas agar proses validasi tetap dapat berjalan meskipun koneksi internet tidak stabil. Pertimbangan terkait kondisi jaringan ini menjadi aspek penting dalam memastikan keandalan sistem e-ticketing yang diterapkan di Pura Lempuyang.
+
+Rumusan Masalah
+Adapun permasalahan yang dihadapi oleh pengelola Pura Lempuyang, berdasarkan latar belakang di atas, adalah bahwa sistem pembelian tiket yang masih dilakukan secara manual menyebabkan antrean panjang, kesalahan pencatatan data, serta keterlambatan dalam pelayanan kepada pengunjung. Kondisi tersebut menimbulkan ketidakefisienan dalam proses administrasi dan pengelolaan kapasitas wisatawan setiap harinya. Oleh karena itu, muncul pertanyaan utama dalam penelitian ini, yaitu bagaimana merancang sebuah sistem informasi e-ticketing berbasis website menggunakan framework Laravel dengan metode Waterfall yang dapat membantu pengelola Pura Lempuyang dalam mengoptimalkan proses pemesanan tiket, meningkatkan efisiensi pelayanan, serta memberikan kemudahan bagi wisatawan dalam melakukan transaksi secara daring?
+
+Tujuan Penelitian
+Tujuan dari penelitian ini adalah untuk merancang dan mengembangkan sistem informasi e-ticketing berbasis website pada Pura Lempuyang menggunakan framework Laravel dengan metode Waterfall sebagai solusi dari permasalahan sistem pembelian tiket yang masih dilakukan secara manual. Melalui pengembangan sistem ini, diharapkan proses pemesanan tiket dapat dilakukan secara daring dengan lebih efisien, akurat, dan terintegrasi, sehingga mampu mengurangi antrean, mempercepat pelayanan, serta membantu pengelola dalam memantau jumlah pengunjung dan transaksi secara real-time. Selain itu, penelitian ini juga bertujuan untuk meningkatkan kualitas pelayanan pariwisata di Pura Lempuyang melalui penerapan teknologi informasi yang modern dan berkelanjutan.
+
+Manfaat Penelitian
+Adapun beberapa manfaat yang diharapkan dari penelitian ini, yaitu 
+Bagi Pengelola Pura Lempuyang, hasil penelitian ini dapat membantu dalam mengoptimalkan proses pengelolaan tiket masuk melalui sistem informasi e-ticketing berbasis website yang lebih efisien, terintegrasi, dan mudah digunakan. Sistem ini diharapkan mampu mempermudah proses rekapitulasi data, pemantauan jumlah pengunjung, serta pelaporan keuangan secara real-time.
+Bagi Wisatawan atau Pengunjung, sistem ini memberikan kemudahan dalam melakukan pemesanan tiket secara daring tanpa harus mengantre di lokasi, sehingga meningkatkan kenyamanan, menghemat waktu, dan mendukung pengalaman berwisata yang lebih modern dan praktis.
+Bagi Dunia Akademik, penelitian ini dapat menjadi referensi tambahan dalam bidang pengembangan sistem informasi, khususnya terkait penerapan framework Laravel dan metode Waterfall dalam merancang sistem e-ticketinguntuk sektor pariwisata.
+Bagi Peneliti atau Pengembang Selanjutnya, penelitian ini dapat menjadi dasar atau acuan dalam melakukan penelitian lanjutan, seperti pengembangan fitur lanjutan berbasis mobile application, integrasi dengan sistem pembayaran digital, atau penerapan konsep smart tourism pada destinasi wisata lainnya di Bali maupun Indonesia.
+
+Ruang Lingkup Penelitian
+Berdasarkan uraian pada latar belakang, ruang lingkup penelitian ini mencakup beberapa aspek yang relevan dengan perancangan dan implementasi sistem informasi e-ticketing berbasis website pada Pura Lempuyang, yaitusistem ini hanya mencakup pembuatan website yang berfungsi sebagai media promosi dan penjualan tiket masuk Pura Lempuyang.
+
+Sistem ini berfokus pada perancangan dan pembangunan aplikasi berbasis website yang berfungsi sebagai sarana pemesanan tiket masuk Pura Lempuyang secara daring (online ticketing system). Sistem dikembangkan untuk membantu pengelola dalam mengatur proses penjualan tiket, mencatat transaksi, memantau jumlah pengunjung, serta mempermudah wisatawan dalam melakukan pembelian tiket tanpa harus datang langsung ke loket.
+Metode pengembangan sistem yang digunakan dalam penelitian ini adalah Waterfall, yang terdiri dari tahap analisis kebutuhan, perancangan sistem, implementasi, pengujian, serta pemeliharaan.
+
+Output Penelitian:
+Sistem Informasi E-Ticketing Berbasis Website
+Sistem ini dikembangkan menggunakan bahasa pemrograman PHP dengan framework Laravel, serta basis data MySQL melalui PhpMyAdmin. Aplikasi ini bertujuan untuk meningkatkan efisiensi proses pembelian tiket dan mendukung digitalisasi pelayanan di sektor pariwisata religius. Sistem dapat diakses oleh tiga jenis pengguna, yaitu:
+
+Admin: bertugas mengelola data tiket, laporan transaksi, data pengunjung, dan informasi jadwal kunjungan.
+Petugas Loket / Operator:bertugas melakukan validasi tiket yang sudah dibeli secara daring serta membantu pengunjung dalam proses check-in di area wisata.
+Pengunjung (User): dapat melakukan pendaftaran akun, pemesanan tiket secara daring, melakukan pembayaran, serta menerima tiket digital dalam bentuk QR Code yang dapat dipindai saat kedatangan.
+
+Halaman Utama Sistem
+
+Beranda (Home): Menampilkan informasi umum mengenai Pura Lempuyang serta panduan pembelian tiket.
+Login dan Registrasi: Digunakan oleh admin, petugas, dan pengunjung untuk mengakses sistem sesuai peran masing-masing.
+Pemesanan Tiket (Booking): Fitur utama yang memungkinkan pengunjung memilih tanggal kunjungan dan jumlah tiket.
+Pembayaran: Terintegrasi dengan sistem pembayaran digital yaitu midtrans, menampilkan status pembayaran dan bukti tiket dalam bentuk QR Code.
+Dashboard Admin: Berisi laporan transaksi, data pengunjung, pengelolaan jadwal kunjungan, serta pengaturan harga tiket.
+Dashboard Petugas: Fitur validasi tiket digital serta monitoring pengunjung yang telah masuk ke area wisata.
+
+Pengumpulan informasi kebutuhan dilakukan melalui wawancara langsung dengan pengelola Pura Lempuyang serta studi literatur terkait sistem informasi pariwisata dan e-ticketing berbasis web.
+Perancangan Website menggunakan Data Flow Diagram (DFD).
+Perancangan Database menggunakan Entity Relationship Diagram (ERD).
+Pembuatan Wireframe, Mockup sebagai rancangan antarmuka menggunakan aplikasi Figma.
+Proses pemrograman dan desain visual website menggunakan alat bantu seperti Visual Studio Code, HTML, CSS, XAMPP, PHP, dengan frameworkLaravel dan PhpMyAdmin sebagai basis data.
+Pengujian Sistem menggunaan Blackbox Testing.
+Sistem mencakup pengelolaan tiket masuk dan pemberian nomor antrean foto digital yang terintegrasi saat pembelian tiket, sehingga wisatawan tidak perlu mendaftar antrean foto secara manual di lokasi.
+
+Sistematika Penulisan
+Sistematika penulisan pada penelitian ini akan dijabarkan secara singkat terkait isi masing-masing bab untuk memberikan gambaran kepada pembaca mengenai perancangan sistem informasi e-ticketing pada Pura Lempuyang berbasis website.
+
+BAB I PENDAHULUAN
+Bab ini berisi latar belakang, rumusan masalah, tujuan penelitian, manfaat penelitian, ruang lingkup penelitian, serta sistematika penulisan. Bagian ini memberikan gambaran umum mengenai permasalahan yang dihadapi oleh pengelola Pura Lempuyang serta urgensi penerapan sistem e-ticketing berbasis website sebagai solusi digitalisasi pelayanan wisata.
+BAB II TINJAUAN PUSTAKA
+Bab ini menyajikan landasan teori yang mendukung penelitian, meliputi teori tentang sistem informasi, website, e-ticketing, pariwisata, serta metode pengembangan perangkat lunak yang digunakan. Selain itu, bab ini juga mencantumkan hasil penelitian terdahulu yang relevan untuk memperkuat dasar penelitian dan menunjukkan posisi penelitian ini dibandingkan studi sebelumnya.
+BAB III METODE PENELITIAN
+Bab ini menjelaskan metode yang digunakan dalam penelitian, dimulai dari teknik pengumpulan data, analisis sistem, desain sistem, hingga proses implementasi dan pengujian. Penelitian ini menggunakan metode pengembangan perangkat lunak Waterfall dengan tahapan yang terstruktur mulai dari analisis kebutuhan hingga evaluasi sistem.
+BAB IV HASIL DAN PEMBAHASAN
+Bab ini berisi penjabaran hasil penelitian yang diperoleh setelah proses analisis, perancangan, dan implementasi sistem informasi e-ticketing berbasis website. Selain itu, bab ini juga membahas efektivitas sistem yang telah dikembangkan berdasarkan metode pengujian yang diterapkan. Penjelasan dalam bab ini disusun secara sistematis agar pembaca dapat memahami keterkaitan antara rancangan, implementasi, serta hasil evaluasi sistem.
+BAB VPENUTUP
+Bab ini berisi kesimpulan yang diperoleh dari hasil penelitian serta saran yang dapat digunakan sebagai acuan dalam pengembangan sistem e-ticketing lebih lanjut, baik untuk peningkatan fitur maupun penerapan pada destinasi wisata lainnya.
+BAB IITINJAUAN PUSTAKA
+
+State Of The Art
+Bagian ini membahas hasil penelitian terdahulu yang memiliki keterkaitan dengan topik â?oPerancangan Sistem Informasi E-Ticketing pada Pura Lempuyang Berbasis Website Menggunakan Framework Laravel.â?? Kajian ini bertujuan untuk mengetahui sejauh mana penelitian serupa telah dilakukan, metode yang digunakan, serta hasil yang dicapai, sehingga dapat menjadi acuan sekaligus pembeda dari penelitian yang dilakukan saat ini. Berdasarkan penelusuran literatur dari beberapa jurnal nasional dan internasional lima tahun terakhir, terdapat sejumlah penelitian yang relevan di bidang pengembangan sistem informasi e-ticketing berbasis website dengan framework Laravel, seperti yang ditunjukkan pada Tabel 2.1 berikut.
+
+Tabel 2.1State OfThe Art
+
+Berdasarkan penelitian-penelitian terdahulu, sistem e-ticketing yang dikembangkan pada berbagai sektor pariwisata umumnya hanya berfokus pada proses pemesanan tiket, pembayaran digital, dan validasi QR Code. Tidak ada penelitian sebelumnya yang secara khusus membahas pengelolaan antrean foto digital pada destinasi wisata yang memiliki titik foto ikonik dengan jumlah pengunjung tinggi. Hal ini menjadi pembeda utama penelitian ini, karena sistem e-ticketing yang diusulkan tidak hanya menyediakan pemesanan tiket masuk, tetapi juga mengintegrasikan fitur pemberian nomor antrean foto digital yang diberikan secara otomatis setelah pengunjung melakukan pembelian tiket. Dengan demikian, penelitian ini menawarkan nilai kebaruan (novelty) berupa pengaturan antrean foto yang lebih tertib, mengurangi antrean manual yang selama ini menjadi keluhan utama wisatawan, serta meningkatkan efisiensi operasional pengelola Pura Lempuyang. Fitur ini belum ditemukan dalam penelitian e-ticketing sebelumnya dan menjadi kontribusi unik pada penelitian ini.
+
+Pura Lempuyang
+Pura Lempuyang Luhur merupakan salah satu pura tertua dan paling disucikan di Bali yang terletak di Bukit Bisbis, Desa Purahayu, Kecamatan Abang, Kabupaten Karangasem. Pura ini menjadi bagian dari enam pura utama yang disebut Sad Kahyangan Jagad atau enam pilar spiritual penjaga keseimbangan Pulau Bali. Selain memiliki nilai religius yang tinggi bagi umat Hindu, Pura Lempuyang juga dikenal luas sebagai destinasi wisata spiritual dan budaya yang menawarkan panorama Gunung Agung serta arsitektur khas Bali yang megah.Dalam beberapa tahun terakhir, Pura Lempuyang semakin populer di kalangan wisatawan domestik maupun mancanegara, terutama karena daya tarik â?oGate of Heavenâ?? yang menjadi ikon utama di media sosial. Peningkatan jumlah pengunjung ini membawa dampak positif terhadap ekonomi lokal, tetapi juga menimbulkan tantangan baru dalam hal manajemen pengunjung, antrean tiket, dan pengelolaan data kunjungan. Sistem pembelian tiket yang masih dilakukan secara manual kerap menyebabkan penumpukan antrean serta keterlambatan pelayanan.Dengan adanya penerapan sistem informasi e-ticketing berbasis website, pengelolaan tiket di Pura Lempuyang diharapkan menjadi lebih efisien, akurat, dan transparan. Digitalisasi ini tidak hanya bertujuan untuk mempercepat proses transaksi, tetapi juga untuk mendukung upaya pelestarian nilai budaya dan peningkatan kualitas pelayanan bagi wisatawan tanpa mengurangi kesakralan pura sebagai tempat ibadah. Berikut merupakan Gambar 2.1 yang menunjukkan letak geografis Pura Lempuyang.
+
+
+Gambar 2. 1 Letak Geografis Pura Lempuyang
+
+2.2 Website
+Website dapat diartikan sebagai kumpulan halaman yang berisi informasi data digital baik berupa teks, gambar, animasi, suara, dan video atau gabungan dari semuanya yang disediakan melalui jalur koneksi internet sehingga dapat diakses dan dilihat oleh semua orang di seluruh dunia. Halaman website dibuat menggunakan bahasa standar yaitu HTML. Skrip HTML ini akan diterjemahkan oleh website browser sehingga dapat ditampilkan dalam bentuk informasi yang dapat dibaca oleh semua orang[10].
+
+2.3E-Ticketing
+Menurut Wahyudi (2020), E-ticketing merupakan cara untuk mendokumentasikan proses penjualan tiket secara daring (online) yang hasil keluarannya berupa tiket digital (electronicticket) yang dapat digunakan untuk berbagai kegiatan seperti konser, perjalanan, atau wisata. Sistem ini memungkinkan pelanggan membeli tiket kapan saja dan di mana saja melalui metode pembayaran elektronik seperti transfer bank atau kartu kredit, tanpa harus datang langsung ke lokasi penjualan[11]. Penerapan sistem e-ticketing memberikan banyak keuntungan, di antaranya meningkatkan efisiensi transaksi, mengurangi antrean, serta meminimalkan risiko kehilangan atau kerusakan tiket fisik. Selain itu, sistem ini memudahkan penyelenggara dalam melakukan pengelolaan data penjualan, validasi tiket, dan pelaporan transaksi secara real-time. Dalam penelitian Wahyudi, pengembangan sistem e-ticketing berbasis website ini dilengkapi dengan fitur seating number, yang memungkinkan pengguna memilih kursi secara langsung saat melakukan pemesanan tiket. Dengan adanya sistem seperti ini, pengguna tidak perlu lagi menukarkan tiket fisik di hari pelaksanaan, sementara pihak penyelenggara dapat mengatur kapasitas tempat duduk dengan lebih mudah dan akurat. Secara keseluruhan, e-ticketing menjadi salah satu bentuk penerapan transformasi digital di bidang layanan publik dan industri hiburan yang dapat meningkatkan kenyamanan, keamanan, serta efektivitas dalam proses transaksi dan manajemen data.
+
+2.4Pariwisata
+Menurut Mokoginta et al. (2020), pariwisata merupakan salah satu sektor strategis yang berperan penting dalam meningkatkan pendapatan masyarakat, daerah, dan negara. Indonesia sebagai negara dengan keindahan alam serta keragaman budaya memiliki potensi besar dalam pengembangan pariwisata yang berkelanjutan. Undang-Undang Nomor 9 Tahun 1990 mendefinisikan pariwisata sebagai segala sesuatu yang berhubungan dengan wisata, termasuk pengusahaan objek dan daya tarik wisata serta usaha-usaha yang terkait di bidang tersebut. Penelitian Mokoginta et al. menjelaskan bahwa pengembangan pariwisata perlu mempertimbangkan faktor internal dan eksternal, seperti daya tarik wisata, fasilitas, aksesibilitas, dan persepsi masyarakat lokal. Melalui pendekatan analisis SWOT, penelitian ini mengidentifikasi kekuatan pariwisata bahari Kecamatan Nuangan, yaitu keindahan alam, kondisi jalan yang baik, serta penerimaan masyarakat yang positif terhadap wisatawan. Sementara itu, kelemahan yang ditemukan meliputi keterbatasan fasilitas umum seperti air bersih, penginapan, serta pusat informasi wisata. Hasil penelitian juga menekankan pentingnya strategi pengembangan berbasis partisipasi masyarakat dan teknologi informasi, salah satunya dengan pembuatan website khusus objek wisata untuk memperluas promosi dan memudahkan wisatawan memperoleh informasi. Strategi ini terbukti mampu meningkatkan jumlah kunjungan serta mendukung keberlanjutan sektor pariwisata daerah. Dengan demikian, pariwisata bukan hanya berfungsi sebagai sarana rekreasi, tetapi juga menjadi instrumen penting dalam pembangunan ekonomi daerah, pemberdayaan masyarakat, serta pelestarian lingkungan dan budaya lokal[12].
+2.5Flowchart
+Flowchart merupakan gambaran berbentuk grafik yang menunjukkan langkah-langkah atau urutan prosedur dari suatu proses atau program. Flowchart digunakan untuk membantu analisis, perancangan, dan pengkodean sistem dengan memecah permasalahan menjadi bagian-bagian kecil yang lebih mudah dipahami. Simbol-simbol pada flowchart mewakili urutan kegiatan dan hubungan antarproses secara logis sehingga pengguna dapat melihat aliran informasi atau data dengan jelas. Fungsi utama flowchart adalah memberikan gambaran visual mengenai proses atau sistem agar mudah dipahami, diikuti, dan dianalisis kembali. Dengan adanya flowchart, pengembang sistem dapat menggambarkan alur kerja, mengidentifikasi bagian yang tidak efisien, serta memastikan bahwa rancangan sistem sesuai dengan prosedur bisnis yang ada[13]. Dalam konteks penelitian ini, flowchart digunakan untuk memetakan proses kerja sistem e-ticketing berbasis website agar struktur logika dan urutan kegiatan dapat dirancang secara sistematis dan efisien.BerikutmerupakanTabel2.2yangmenunjukkansimbol flowchart:
+
+Tabel 2.2 Simbol-simbol Flowchart
+
+Menurut Malabay (2016), flowchart dapat dikategorikan menjadi dua jenis utama yang digunakan dalam analisis dan perancangan sistem, yaitu flowchart sistem dan flowchart program.
+
+Flowchart Sistem
+Flowchart sistem menggambarkan urutan proses yang terjadi dalam suatu sistem secara menyeluruh. Diagram ini memperlihatkan bagaimana data mengalir dari satu proses ke proses lainnya, termasuk penggunaan perangkat input, output, serta media penyimpanan yang terlibat dalam pengolahan data. Tujuannya adalah memberikan pemahaman menyeluruh tentang interaksi antara komponen sistem dan alur kerja bisnis yang berlangsung.
+Flowchart Program
+Flowchart program digunakan untuk menjelaskan urutan langkah-langkah logika dalam suatu program komputer secara lebih rinci. Diagram ini memperlihatkan hubungan antara satu proses dengan proses lainnya menggunakan simbol-simbol standar, seperti process, decision, dan input/output. Flowchart program membantu pengembang dalam memahami logika pemrograman sebelum proses implementasi ke dalam kode sesungguhnya, sehingga mengurangi risiko kesalahan dalam pengembangan sistem.
+
+2.6Visual Studio Code
+Visual Studio Code merupakan teks editor ringan namun kuat yang dikembangkan oleh Microsoft dan dapat dijalankan di berbagai sistem operasi seperti Windows, Linux, dan macOS. Aplikasi ini mendukung berbagai bahasa pemrograman, termasuk JavaScript, TypeScript, dan Node.js, serta bahasa lain seperti Python, C++, C#, Go, dan Java melalui pemasangan plugin tambahan. Visual Studio Code dilengkapi dengan berbagai fitur unggulan seperti IntelliSense (saran kode otomatis dan penyorotan sintaks), Git Integration (integrasi kontrol versi), Debugging Tools, serta dukungan Extension Marketplace yang memungkinkan pengguna menambahkan fungsionalitas baru sesuai kebutuhan proyek[14]. Dalam konteks pengembangan sistem informasi berbasis website, Visual Studio Code sering digunakan sebagai lingkungan pengembangan utama (Integrated Development Environment / IDE) karena menyediakan kenyamanan dalam menulis, menguji, dan mengelola kode secara efisien.
+
+
+Gambar 2.2 Logo Visual Studio Code
+
+2.7XAMPP
+XAMPP merupakan perangkat lunak (software) yang digunakan untuk menjalankan aplikasi atau website berbasis PHP secara lokal menggunakan MySQL sebagai pengelola data utamanya. XAMPP sendiri merupakan singkatan dari Apache, MySQL, PHP, dan Perl, yang bekerja sebagai satu paket layanan server lokal. XAMPP berfungsi sebagai lingkungan pengembangan website lengkap yang memungkinkan pengembang membuat, menguji, dan menjalankan aplikasi berbasis website secara offline sebelum dipublikasikan ke server sebenarnya. Selain itu, XAMPP juga menyediakan antarmuka yang memudahkan pengaturan basis data serta proses debugging dan integrasi antara komponen server[15]. Dalam konteks penelitian ini, XAMPP digunakan untuk mendukung proses pengembangan sistem informasi e-ticketing Pura Lempuyang karena menyediakan server lokal yang stabil, cepat, dan aman untuk pengujian sistem selama tahap perancangan dan implementasi..Gambar 2.3. Menunjukkan logo dari XAMPP.
+
+Gambar 2.3 Logo XAMPP
+
+2.8Laravel
+Laravel merupakan framework berbasis PHP yang menggunakan arsitektur Model-View-Controller (MVC) untuk memisahkan logika, tampilan, dan data. Framework ini mempermudah proses pengembangan website karena memiliki struktur kode yang rapi, efisien, dan mudah dikelola. Laravel dilengkapi fitur seperti Eloquent ORM untuk pengelolaan basis data, Blade templating engine untuk tampilan dinamis, serta migration system untuk pembaruan skema database[16]. Framework ini juga mendukung keamanan tinggi, dokumentasi lengkap, dan komunitas aktif yang membantu pengembang menyelesaikan proyek dengan cepat. Dalam penelitian ini, Laravel dipilih karena kemampuannya membangun sistem informasi e-ticketing yang modern, terintegrasi, serta mudah dikembangkan dan dipelihara.
+
+
+Gambar 2.4 Logo Laravel
+
+2.9HTML (HyperText Markup Language)
+HTML (Hypertext Markup Language) merupakan bahasa yang digunakan untuk menggambarkan struktur halaman website dan menjadi dasar dalam pembuatan website. HTML berfungsi untuk menentukan tata letak elemen seperti teks, gambar, tabel, tautan (link), formulir, video, dan audio agar dapat ditampilkan secara terstruktur melalui browser.Bahasa ini digunakan untuk mempublikasikan dokumen secara daring serta mengatur tampilan informasi dalam format yang mudah dibaca oleh pengguna internet[17]. Dalam pengembangan sistem informasi e-ticketing, HTML berperan penting sebagai pondasi utama dalam pembuatan antarmuka pengguna (user interface) sehingga tampilan website menjadi interaktif dan mudah diakses oleh pengunjung
+
+
+Gambar 2.5 Logo HTML (HyperText Markup Language)
+
+2.10CSS (Cascading Style Sheets)
+CSS (Cascading Style Sheets)merupakan bahasa markup yang digunakan untuk mengatur tampilan visual halaman website yang dibangun menggunakan HTML. CSS berfungsi untuk mengontrol elemen seperti tata letak (layout), warna, jenis huruf, dan ukuran objek pada halaman website. Dengan adanya CSS, pengembang dapat memisahkan antara struktur konten dan tampilan visual sehingga kode menjadi lebih terorganisir dan mudah dikelola. CSS juga mendukung desain responsif, yang memungkinkan tampilan website menyesuaikan ukuran layar perangkat pengguna seperti komputer, tablet, atau ponsel[18]. Dalam pengembangan sistem informasi e-ticketing, penerapan CSS digunakan untuk meningkatkan estetika dan kenyamanan antarmuka pengguna agar lebih menarik, informatif, serta mudah digunakan oleh pengunjung.
+
+
+Gambar 2.6 Logo CSS (Cascading Style Sheets)
+2.11PHP: Hypertext Preprocessor
+PHP merupakan bahasa pemrograman berbasis open source yang dirancang khusus untuk pengembangan website dan dapat disisipkan langsung ke dalam dokumen HTML. PHP tergolong bahasa server-side scripting, artinya proses eksekusi kode dilakukan di sisi server, sedangkan hasilnya dikirim ke browser pengguna dalam bentuk halaman website. PHP memiliki sintaks yang mirip dengan bahasa C dan Java sehingga mudah dipelajari serta fleksibel digunakan bersama dengan berbagai basis data seperti MySQL. Bahasa ini memungkinkan pembuatan halaman website dinamis dengan kemampuan menangani input-output data, autentikasi pengguna, serta integrasi ke sistem manajemen basis data[19]. Dalam penelitian ini, PHP digunakan sebagai bahasa utama dalam pengembangan sistem informasi e-ticketing Pura Lempuyang karena mampu mengolah data secara real-time, menghasilkan tampilan dinamis, dan berinteraksi langsung dengan database untuk mendukung proses transaksi tiket secara efisien dan aman.
+
+
+Gambar 2.7 Logo PHP: Hypertext Preprocessor
+
+2.12phpMyAdmin
+phpMyAdmin merupakan aplikasi open source berbasis website yang digunakan untuk mengelola database MySQL melalui jaringan lokal maupun internet. Aplikasi ini ditulis dalam bahasa pemrograman PHP dan menyediakan antarmuka grafis yang mempermudah pengguna dalam melakukan operasi database seperti pembuatan tabel, pengelolaan data, pengaturan relasi antar tabel, hingga pengaturan hak akses pengguna.phpMyAdmin berfungsi sebagai alat bantu administrasi database MySQL agar proses pengelolaan data menjadi lebih efisien, cepat, dan aman tanpa harus menggunakan perintah query secara manual. Keunggulan lainnya adalah kemampuannya berjalan lintas platform serta integrasinya dengan XAMPP sebagai server local [20].Dalam penelitian ini, phpMyAdmin digunakan untuk mendukung pengembangan sistem informasi e-ticketing Pura Lempuyang, khususnya dalam pembuatan, penyimpanan, serta pengelolaan data transaksi tiket dan data pengunjung agar dapat diakses secara sistematis dan terstruktur.
+
+
+Gambar 2.8 Logo PhpMyAdmin
+
+2.12Metode Pengembangan Sistem Waterfall
+Menurut Anis et al. (2023), metode Waterfall merupakan salah satu model pengembangan perangkat lunak yang bersifat terstruktur dan berurutan (sekuensial). Model ini terdiri dari beberapa tahapan yang dilakukan secara sistematis, di mana setiap tahap harus diselesaikan terlebih dahulu sebelum melanjutkan ke tahap berikutnya. Waterfall banyak digunakan pada proyek yang memiliki kebutuhan sistem yang sudah terdefinisi dengan jelas dan stabil. Metode ini disebut â?oWaterfallâ?? karena prosesnya menyerupai air terjun, yang mengalir dari satu tahap ke tahap berikutnya tanpa kembali ke tahap sebelumnya. Setiap tahapan menghasilkan dokumen dan hasil kerja yang menjadi dasar untuk melanjutkan ke fase berikutnya[21]. Meskipun model ini kurang fleksibel terhadap perubahan kebutuhan, Waterfall tetap relevan untuk pengembangan sistem dengan ruang lingkup yang terukur dan spesifikasi yang pasti. Berikut Gambar 2.9 yang menunjukkan alur metode Waterfall.
+
+
+Gambar 2.9 Alur Metode Waterfall
+
+Adapun tahapan-tahapan utama dalam model Waterfall dijelaskan sebagai berikut:
+
+Analisis Kebutuhan (Requirement Analysis)
+Tahap ini bertujuan untuk memahami kebutuhan pengguna (user requirements) dan mendefinisikan fungsi sistem yang akan dibangun. Aktivitas meliputi pengumpulan data, observasi lapangan, wawancara dengan pengguna, serta pendokumentasian kebutuhan sistem.
+Perancangan Sistem (System Design)
+Pada tahap ini dilakukan perancangan arsitektur sistem, rancangan basis data, serta antarmuka pengguna. Desain ini menjadi acuan dalam tahap implementasi agar sistem sesuai dengan kebutuhan dan mudah dipahami oleh pengguna. 
+Implementasi (Implementation / Coding)
+Tahap ini merupakan proses penerjemahan hasil rancangan ke dalam bentuk kode program menggunakan bahasa pemrograman yang dipilih. Implementasi dilakukan secara bertahap dan terstruktur untuk memastikan fungsi-fungsi sistem berjalan dengan baik.
+Pengujian (Testing)
+Setelah implementasi selesai, dilakukan pengujian untuk memastikan sistem berjalan sesuai dengan kebutuhan pengguna. Pengujian ini meliputi uji fungsionalitas, kompatibilitas, kinerja, dan keamanan.
+Pemeliharaan (Maintenance)
+Tahap terakhir mencakup kegiatan pemantauan sistem secara berkala, perbaikan bug, dan pembaruan fitur sesuai kebutuhan baru pengguna. Pemeliharaan ini penting agar sistem tetap stabil, aman, dan relevan seiring perkembangan teknologi.
+
+2.13Metode Pengujian Sistem (Blackbox Testing)
+Menurut Abdillah, Kurniastuti, Susanto, dan Yudianto (2023), BlackboxTesting merupakan metode pengujian perangkat lunak yang berfokus pada fungsi-fungsi sistem tanpa memperhatikan struktur internal kode program. Tujuan utama dari pengujian ini adalah untuk memastikan bahwa seluruh komponen sistem telah berjalan sesuai dengan kebutuhan pengguna dan menghasilkan keluaran (output) yang sesuai dengan masukan (input) yang diberikan. Metode ini menguji sistem dari sudut pandang pengguna (user perspective), di mana penguji hanya mengetahui spesifikasi fungsi dan hasil yang diharapkan tanpa harus memahami logika pemrograman di balik sistem tersebut. Pengujian dilakukan dengan memberikan sejumlah data uji dan kemudian mengamati apakah sistem menghasilkan respons yang benar. Jika hasilnya sesuai, maka fungsi dianggap valid; namun jika terjadi ketidaksesuaian, maka ditemukan adanya kesalahan atau bug yang perlu diperbaiki[22]. Kelebihan metode BlackboxTesting yaitu mudah diterapkan, efisien, dan tidak memerlukan pemahaman teknis terhadap struktur program, sehingga cocok digunakan untuk pengujian sistem berbasis website. Dalam penelitian Abdillah et al. (2023), metode ini diterapkan pada pengujian website sekolah untuk memastikan setiap fitur utama berfungsi sebagaimana mestinya, dan hasilnya menunjukkan bahwa seluruh fitur berjalan sesuai spesifikasi sistem. Langkah-langkah pengujian BlackboxTesting yang dijelaskan oleh Abdillah et al. (2023) adalah sebagai berikut:
+
+Menentukan Fitur yang Akan Diuji, dengan mengidentifikasi fungsi utama yang akan diuji, seperti login, pendaftaran, input data, dan validasi.
+Menyusun Skenario Pengujian, yaitu membuat daftar kondisi uji yang berisi input, proses, dan output yang diharapkan.
+Melakukan Pengujian, di mana sistem dijalankan sesuai skenario untuk melihat hasil keluaran yang dihasilkan.
+Membandingkan Hasil Aktual dengan Hasil yang Diharapkan, untuk menentukan apakah fungsi tersebut berjalan dengan benar.
+Mendokumentasikan Hasil Pengujian, yang disajikan dalam tabel pengujian berisi kolom: Skenario Uji, Input, Output yang Diharapkan, Hasil Aktual, dan Keterangan (Valid/Invalid).
+
+Dalam penelitian ini, metode BlackboxTesting digunakan untuk menguji fungsionalitas sistem informasi e-ticketing Pura Lempuyang, yang mencakup proses login, pendaftaran pengguna, pemesanan tiket, validasi pembayaran, hingga pencetakan tiket digital berbentuk QR Code. Pengujian ini bertujuan untuk memastikan bahwa setiap fitur sistem telah berjalan dengan baik, sesuai dengan kebutuhan pengguna dan spesifikasi yang telah ditetapkan.
+
+2.14Data Flow Diagram (DFD)
+Menurut Fahmi dan Sutaji (2025), Data Flow Diagram (DFD) merupakan alat pemodelan visual yang digunakan untuk menggambarkan alur pergerakan data dalam sistem secara logis maupun fisik, mulai dari input hingga output. DFD berfungsi untuk membantu analis sistem dalam memahami bagaimana data mengalir antar proses, penyimpanan data, dan entitas eksternal dalam suatu sistem informasi[23].
+
+DFD terdiri dari beberapa komponen utama, yaitu:
+
+External Entity (Entitas Luar)
+pihak yang berinteraksi langsung dengan sistem, seperti pengguna, admin, atau sistem eksternal lainnya.
+Process (Proses)
+aktivitas yang mengubah input menjadi output.
+Data Store (Penyimpanan Data)
+tempat penyimpanan sementara atau permanen untuk data yang digunakan dalam sistem.
+Data Flow (Aliran Data)
+arah perpindahan data antar komponen dalam sistem
+
+DFD disusun dalam beberapa level, mulai dari yang paling umum hingga yang paling detail:
+
+Diagram Konteks (Context Diagram)
+Menunjukkan hubungan sistem dengan entitas eksternal.
+DFD Level 0
+Menguraikan proses utama yang ada dalam sistem.
+DFD Level 1 dan Level 2
+Memberikan rincian lebih detail dari proses yang ada pada level sebelumnya, termasuk interaksi antar data store dan subproses.
+
+Dalam penelitian Fahmi dan Sutaji (2025), DFD digunakan untuk merancang alur sistem pelayanan masyarakat berbasis WhatsApp. Model DFD tersebut memperlihatkan bagaimana laporan dari masyarakat diterima, diverifikasi oleh admin, dan dikembalikan dalam bentuk umpan balik atau notifikasi otomatis. Proses ini digambarkan melalui serangkaian diagram yang terdiri dari Diagram Konteks, DFD Level 0, DFD Level 1, dan DFD Level 2, yang secara keseluruhan menjelaskan interaksi antara pengguna, admin, dan sistem secara terstruktur. Berikut merupakan Tabel 2.3 yang menunjukkan Simbol-simbol DFD.
+
+Tabel 2.3 Simbol-simbol DFD
+
+
+2.15Entity Relationship Diagram (ERD)
+Menurut Akbar dan Haryanti (2021), Entity Relationship Diagram (ERD) merupakan alat pemodelan basis data yang digunakan untuk menggambarkan hubungan antar entitas dalam suatu sistem informasi secara konseptual. ERD membantu pengembang memahami bagaimana data saling berinteraksi melalui entitas, atribut, dan relasi sehingga mempermudah dalam merancang struktur basis data yang efisien dan konsisten. ERD digunakan pada tahap perancangan (design phase) untuk meminimalisir kesalahan dalam pengembangan sistem dengan cara memastikan kebutuhan pengguna telah diterjemahkan dengan benar ke dalam model data. Dalam diagram ini, entitas direpresentasikan sebagai objek yang memiliki atribut (seperti nama pengguna, kode transaksi, atau harga tiket), sedangkan relasi menggambarkan keterkaitan antarentitas (misalnya hubungan antara pengguna dan transaksi). Akbar dan Haryanti (2021) menekankan bahwa penggunaan ERD dalam perancangan database membantu mengurangi risiko redundansi data dan memudahkan proses normalisasi. Dengan pendekatan ini, struktur database dapat divalidasi terlebih dahulu oleh pengguna sebelum diimplementasikan ke sistem nyata, sehingga hasil akhir lebih sesuai dengan kebutuhan operasional[24]. Dalam konteks penelitian ini, Entity Relationship Diagram digunakan untuk memodelkan hubungan data pada sistem informasi e-ticketing Pura Lempuyang, meliputi entitas seperti pengguna, admin, tiket, transaksi, dan pembayaran. ERD berfungsi sebagai dasar dalam penyusunan struktur database agar sistem mampu menyimpan dan mengelola data pengunjung serta transaksi tiket secara terintegrasi dan efisien. Berikut merupakan Tabel 2.4 yang menunjukkan Simbol-simbol ERD.
+
+Tabel 2.4 Simbol-simbol ERD
+
+
+
+Halaman Ini Sengaja Dikosongkan
+
+BAB IIIMETODOLOGI PENELITIAN
+
+Perancangan sistem informasi e-ticketing pada Pura Lempuyang berbasis website ini dilakukan dengan pendekatan metodologis yang sistematis agar hasil penelitian dapat mencapai tujuan yang diharapkan. Bab ini membahas metode penelitian yang digunakan, teknik pengumpulan data, analisis dan perancangan sistem, hingga proses implementasi dan pengujian yang diterapkan pada sistem. Dengan metode yang terstruktur, penelitian ini diharapkan dapat menghasilkan sistem yang efisien, fungsional, dan mampu menjawab permasalahan yang telah dirumuskan pada bab sebelumnya.
+
+Metode Penelitian
+Penelitian ini menggunakan metode pengembangan perangkat lunak Waterfall. Model ini dipilih karena sesuai untuk sistem dengan kebutuhan yang sudah jelas serta tahapan pengembangan yang harus dilakukan secara berurutan. Tahapan dalam metode Waterfall terdiri dari:
+
+Analisis Kebutuhan (Requirement Analysis)
+Mengidentifikasi kebutuhan pengguna, baik dari sisi pengelola Pura Lempuyang maupun pengunjung.
+Perancangan Sistem (System Design)
+Membuat rancangan alur data (DFD), struktur basis data (ERD), serta desain antarmuka website menggunakan Figma.
+Implementasi (Implementation)
+Proses pembuatan kode program menggunakan bahasa PHP dengan framework Laravel dan database MySQL.
+Pengujian (Testing)
+Melakukan pengujian fungsi sistem menggunakan metode Blackbox Testing.
+Pemeliharaan (Maintenance)
+Evaluasi dan perbaikan sistem setelah tahap pengujian untuk memastikan sistem dapat berjalan optimal.
+
+Metode ini membantu penelitian agar setiap tahap memiliki arah dan keluaran (output) yang jelas sebelum berlanjut ke tahap berikutnya.
+
+Teknik Pengumpulan Data
+Keberhasilan dalam perancangan dan pembangunan sistem informasi sangat bergantung pada ketepatan data yang digunakan dalam tahap analisis kebutuhan. Oleh karena itu, proses pengumpulan data menjadi tahap penting dalam penelitian ini. Tujuannya adalah untuk memperoleh informasi yang akurat, relevan, dan komprehensif terkait permasalahan yang dihadapi oleh pengelola Pura Lempuyang serta kebutuhan pengguna terhadap sistem e-ticketing yang akan dikembangkan. Data yang dikumpulkan mencakup aspek teknis, fungsional, maupun operasional dari sistem yang sedang berjalan, sehingga hasil analisis dapat dijadikan dasar dalam merancang solusi yang tepat. Selain itu, pengumpulan data dilakukan untuk memahami secara mendalam bagaimana proses transaksi tiket saat ini berlangsung, kendala yang dihadapi oleh pengunjung dan petugas loket, serta sejauh mana teknologi informasi dapat diterapkan untuk meningkatkan efisiensi layanan. Dengan demikian, data yang diperoleh diharapkan mampu mendukung setiap tahapan pengembangan sistem berbasis framework Laravel dan metode Waterfall agar hasil penelitian sesuai dengan kebutuhan pengguna. Adapun teknik pengumpulan data yang digunakan dalam penelitian ini adalah sebagai berikut:
+
+3.2.1Wawancara
+Wawancara dilakukan dengan pengelola Pura Lempuyang, petugas loket, dan staf administrasi yang terlibat dalam pengelolaan tiket. Teknik ini bertujuan untuk mendapatkan informasi lebih mendalam terkait kebutuhan sistem, jenis data yang dibutuhkan, serta harapan pengguna terhadap sistem baru. Data yang diperoleh dari wawancara ini membantu peneliti menentukan kebutuhan fungsional dan non-fungsional sistem secara lebih spesifik.
+
+3.2.2Observasi
+Observasi dilakukan secara langsung di lokasi Pura Lempuyang untuk melihat dan mencatat alur kegiatan operasional penjualan tiket konvensional. Melalui metode ini, peneliti dapat memahami kondisi nyata di lapangan, seperti proses antrean, interaksi antara pengunjung dan petugas, serta sistem pencatatan data yang digunakan. Hasil observasi ini memberikan gambaran menyeluruh mengenai kelemahan sistem manual yang menjadi dasar perancangan sistem baru.
+
+3.2.3Studi Literatur
+Studi literatur dilakukan dengan mengumpulkan referensi dari jurnal ilmiah, buku, dan penelitian terdahulu yang berkaitan dengan sistem informasi, e-ticketing, pariwisata, serta framework Laravel. Tujuannya adalah untuk memperkuat landasan teoritis dan memastikan bahwa sistem yang dirancang mengacu pada praktik terbaik yang telah terbukti efektif pada penelitian sebelumnya.
+
+Data yang telah diperoleh melalui ketiga metode di atas kemudian dianalisis untuk menentukan kebutuhan sistem yang akan dikembangkan, baik dari sisi fungsionalitas maupun desain arsitektur, sebagaimana dijelaskan pada subbab berikutnya.
+
+Analisa Sistem
+Analisis sistem bertujuan untuk memahami kondisi sistem yang sedang berjalan serta merumuskan rancangan sistem baru yang mampu menyelesaikan permasalahan yang ada. Berdasarkan hasil observasi dan wawancara di Pura Lempuyang, diketahui bahwa proses pembelian tiket masih dilakukan secara manual sehingga menimbulkan berbagai kendala seperti antrean panjang, keterlambatan pelayanan, dan kesulitan dalam pengelolaan data transaksi. Oleh karena itu, diperlukan sistem informasi e-ticketing berbasis web yang dapat mempermudah proses pemesanan tiket, mempercepat transaksi, serta membantu pengelola dalam melakukan monitoring aktivitas wisata secara digital.Analisis ini dilakukan untuk mengidentifikasi kebutuhan sistem secara menyeluruh, baik kebutuhan fungsional maupun non-fungsional. Hasil dari analisis ini akan menjadi dasar dalam proses perancangan sistem yang digambarkan melalui model Data Flow Diagram (DFD) dan Entity Relationship Diagram (ERD) pada tahap desain sistem berikutnya.
+
+1. Analisis Kebutuhan Fungsional
+Kebutuhan fungsional menjelaskan fungsi utama yang harus tersedia dalam sistem agar dapat memenuhi kebutuhan pengguna. Adapun kebutuhan fungsional sistem e-ticketing Pura Lempuyang adalah sebagai berikut:
+
+a) Sistem menyediakan fitur registrasi dan login bagi tiga jenis pengguna, yaitu pengunjung, petugas, dan admin.
+b) Pengunjung dapat melakukan pemesanan tiket secara daring dengan memilih tanggal kunjungan dan jumlah tiket.
+c) Sistem menampilkan informasi harga tiket, jadwal kunjungan, dan ketentuan wisata.
+d) Proses pembayaran tiket terintegrasi dengan payment gateway Midtrans untuk mendukung transaksi digital secara aman.
+e) Setelah pembayaran berhasil (settlement), pengunjung menerima tiket digital dalam bentuk QR Code yang dikirimkan melalui sistem.
+f) Petugas dapat melakukan pemindaian dan validasi QR Code tiket menggunakan perangkat berbasis web untuk memastikan keabsahan tiket.
+g) Sistem memiliki mekanisme pencegahan double-entry dengan cara mengubah status tiket menjadi â?ousedâ?? setelah QR Code berhasil dipindai, sehingga tiket yang sama tidak dapat digunakan kembali.
+h) Admin dapat mengelola data pengguna, tiket, transaksi, dan laporan keuangan melalui dashboard sistem.
+
+2. Analisis Kebutuhan Non-Fungsional
+Kebutuhan non-fungsional menjelaskan karakteristik sistem yang mendukung kualitas dan kinerja aplikasi. Kebutuhan non-fungsional pada sistem e-ticketing ini meliputi:
+
+a) Keamanan (Security)
+Sistem dilengkapi autentikasi pengguna dan pembatasan hak akses sesuai peran (admin, petugas, dan pengunjung). Selain itu, sistem menggunakan token unik pada setiap QR Code untuk mencegah duplikasi tiket.
+b) Kinerja (Performance)
+Sistem harus mampu merespons permintaan pengguna dengan cepat dan tetap stabil meskipun terjadi banyak transaksi secara bersamaan.
+c) Kemudahan Penggunaan (Usability)
+Antarmuka sistem dirancang sederhana, responsif, dan mudah dipahami oleh seluruh kalangan pengguna.
+d) Ketersediaan (Availability)
+Sistem dapat diakses secara daring selama 24 jam, dengan dependensi pada koneksi internet yang stabil.
+e) Portabilitas (Portability)
+Aplikasi berbasis web ini dapat diakses melalui berbagai perangkat seperti komputer, tablet, maupun smartphone tanpa mengubah tampilan atau fungsi utama.
+
+Analisis Infrastruktur Jaringan
+Kondisi infrastruktur jaringan di Pura Lempuyang perlu dianalisis karena sistem e-ticketing yang akan dikembangkan menggunakan proses validasi QR Code yang bergantung pada koneksi internet. Berdasarkan observasi awal, lokasi Pura Lempuyang yang berada di kawasan dataran tinggi menyebabkan kualitas sinyal internet di area loket sering tidak stabil. Kondisi ini dapat menghambat proses pemindaian tiket secara real-time, sehingga status tiket berpotensi tidak dapat diperbarui dan dapat menimbulkan antrean yang lebih panjang.Untuk mengantisipasi hal tersebut, sistem perlu dirancang agar tetap dapat beroperasi meskipun jaringan mengalami gangguan. Salah satu pendekatan yang dapat digunakan adalah menyediakan mekanisme offline mode atau local caching pada perangkat petugas, sehingga proses pemindaian tiket tetap dapat dilakukan tanpa koneksi internet dan hasilnya disinkronkan kembali ke server saat jaringan pulih. Dengan mempertimbangkan aspek jaringan ini, sistem e-ticketing diharapkan dapat tetap berjalan secara andal di kondisi geografis Pura Lempuyang.
+
+Desain Sistem
+Desain sistem merupakan tahap lanjutan setelah proses analisis kebutuhan, di mana hasil analisis tersebut diterjemahkan ke dalam bentuk rancangan yang lebih konkret sebagai acuan dalam tahap implementasi. Tahap ini bertujuan untuk menghasilkan rancangan sistem yang menggambarkan aliran data, struktur basis data, serta tampilan antarmuka pengguna. Dengan adanya desain sistem, pengembang dapat memastikan bahwa sistem e-ticketing yang dibangun telah sesuai dengan kebutuhan pengguna dan siap diimplementasikan.Desain sistem pada penelitian ini meliputi tiga komponen utama, yaitu desain aliran data (Data Flow Diagram / DFD), desain basis data (Entity RelationshipDiagram / ERD), dan desain antarmuka pengguna (User Interface Design). Ketiga komponen tersebut dijelaskan sebagai berikut:
+
+1. Desain Aliran Data (Data Flow Diagram / DFD)
+Data Flow Diagram (DFD) digunakan untuk menggambarkan bagaimana data mengalir di dalam sistem, mulai dari masukan pengguna hingga menghasilkan keluaran. DFD membantu pengembang memahami proses bisnis yang terjadi serta hubungan antarbagian dalam sistem.Pada sistem e-ticketing Pura Lempuyang, aliran data utama mencakup proses pendaftaran akun, pemesanan tiket, pembayaran digital melalui payment gateway Midtrans, validasi QR Code, dan pelaporan transaksi oleh admin.DFD ini terdiri atas:
+
+a) Diagram Konteks, yang menunjukkan hubungan antara sistem e-ticketing dengan entitas luar seperti pengunjung, petugas, admin, dan layanan pihak ketiga (Midtrans).
+b) DFD Level 0, yang menggambarkan proses utama seperti login, pemesanan tiket, proses pembayaran, dan validasi tiket digital.
+c) DFD Level 1, yang memperinci aliran data antarproses dan penyimpanan data seperti pengguna, tiket, transaksi, dan laporan.
+
+Untuk integrasi dengan Midtrans, sistem menerima status pembayaran berupa pending, settlement, expire, dan cancel. Status ini ditangani melalui proses validasi otomatis: saat transaksi berhasil (settlement), data akan disimpan dan tiket digital diterbitkan; jika pending atau expire, tiket tidak dapat digunakan; dan bila cancel, data transaksi tidak akan tersimpan sebagai tiket valid. Mekanisme ini memastikan setiap transaksi tercatat sesuai status dari Midtrans.
+
+2. Desain Basis Data (Entity Relationship Diagram/ ERD)
+Entity Relationship Diagram (ERD) menggambarkan struktur logis basis data yang digunakan oleh sistem. ERD menunjukkan entitas, atribut, dan hubungan antarentitas.Entitas utama pada sistem e-ticketing ini meliputi:
+
+Entitas Pengguna (User)
+menyimpan data pengunjung, admin, dan petugas.
+Entitas Tiket (Ticket)
+berisi informasi tiket seperti kode, harga, dan tanggal kunjungan.
+Entitas Transaksi (Transaction)
+menyimpan data pemesanan, status pembayaran, serta jumlah tiket.
+Entitas Pembayaran (Payment)
+mencatat metode pembayaran, waktu transaksi, dan kode verifikasi.
+
+Relasi antarentitas dijelaskan dengan cardinality satu-ke-banyak antara pengguna dan transaksi, serta antara transaksi dan tiket. Atribut status pembayaran digunakan untuk mengidentifikasi hasil proses dari Midtrans (pending, settlement, expire, cancel) guna memastikan validitas transaksi secara otomatis.
+
+3. Desain Antarmuka Pengguna (User Interface Design)
+Desain antarmuka pengguna dibuat untuk memberikan gambaran visual dari sistem e-ticketing yang akan dikembangkan. Desain ini dibuat menggunakan aplikasi Figma dengan prinsip sederhana, responsif, dan mudah dipahami oleh pengguna.
+
+a) Halaman Beranda (Home): Menampilkan informasi umum Pura Lempuyang dan panduan pembelian tiket.
+b) Halaman Login dan Registrasi: Memberikan akses berbeda bagi admin, petugas, dan pengunjung.
+c) Halaman Pemesanan Tiket: Menyediakan form pemesanan dan proses pembayaran online melalui Midtrans.
+d) Dashboard Admin: Menampilkan data pengunjung, laporan transaksi, dan fitur manajemen tiket.
+e) Dashboard Petugas: Digunakan untuk memindai dan memvalidasi QRCode tiket. Setelah tiket dipindai, statusnya berubah menjadi â?ousedâ??, sehingga tiket yang sama tidak dapat digunakan dua kali (doubleentryprevention).
+
+Desain sistem ini menjadi pedoman utama dalam proses implementasi agar pengembangan perangkat lunak berjalan terarah, efisien, dan sesuai kebutuhan. Dengan rancangan yang terstruktur serta integrasi layanan pembayaran digital, sistem informasi e-ticketing diharapkan mampu meningkatkan efisiensi pelayanan, meminimalkan antrean, dan mendukung transformasi digital di sektor pariwisata religius Pura Lempuyang.
+
+Implementasi Sistem
+Implementasi sistem merupakan tahap penerapan hasil perancangan ke dalam bentuk aplikasi yang nyata. Pada tahap ini, rancangan sistem yang telah dibuat pada tahap desain diubah menjadi kode program menggunakan bahasa pemrograman dan perangkat pengembangan yang telah ditentukan. Tujuan dari tahap implementasi adalah menghasilkan sistem yang dapat dijalankan secara fungsional sesuai dengan kebutuhan pengguna dan rancangan yang telah dibuat sebelumnya.Dalam penelitian ini, implementasi dilakukan dengan menggunakan framework Laravel sebagai kerangka utama pengembangan web berbasis Model-View-Controller (MVC). Laravel dipilih karena memiliki keunggulan dalam hal keamanan, kecepatan pengembangan, serta kemudahan integrasi dengan berbagai layanan pihak ketiga seperti payment gateway Midtrans. Selain itu, Laravel menyediakan Blade templating engine yang memungkinkan pembuatan antarmuka dinamis dan konsisten, serta sistem migrasi database yang menjaga konsistensi skema data di seluruh proses pengembangan.
+
+Pengujian SistemBlackbox Testing
+Tahap pengujian sistem merupakan proses penting untuk memastikan bahwa sistem yang telah diimplementasikan berjalan sesuai dengan kebutuhan dan fungsionalitas yang telah dirancang. Pengujian dilakukan untuk menemukan kesalahan, memastikan keandalan sistem, serta menilai apakah sistem telah memenuhi tujuan pengembangan.Dalam penelitian ini, metode pengujian yang digunakan adalah Blackbox Testing. Metode ini berfokus pada pengujian fungsi-fungsi sistem tanpa memperhatikan struktur internal atau kode program. Artinya, pengujian dilakukan berdasarkan masukan (input) dan keluaran (output) yang dihasilkan oleh sistem. Jika hasil keluaran sesuai dengan yang diharapkan, maka sistem dianggap berfungsi dengan benar.Blackbox Testing dilakukan dengan menyiapkan sejumlah skenario uji yang mencakup seluruh fungsi utama pada sistem e-ticketing Pura Lempuyang. Setiap skenario berisi kondisi uji, data masukan, hasil keluaran yang diharapkan, hasil aktual, dan keterangan (valid/Invalid). Tahap ini bertujuan untuk memastikan setiap fitur berfungsi sesuai dengan kebutuhan pengguna, mulai dari proses login, pendaftaran, pemesanan tiket, pembayaran, hingga validasi tiket digital menggunakan QR Code.Langkah-langkah pengujian Blackbox Testing dilakukan sebagai berikut:
+
+Menentukan Fitur yang Diuji
+Mengidentifikasi fitur utama sistem seperti login, registrasi, pemesanan tiket, dan pembayaran.
+Menyusun Skenario Pengujian
+Menetapkan kondisi input, proses yang diuji, dan hasil output yang diharapkan.
+Melaksanakan Pengujian
+Menjalankan setiap skenario dan mencatat hasil aktual dari sistem.
+Membandingkan Hasil
+Menilai kesesuaian antara hasil aktual dan hasil yang diharapkan.
+Mendokumentasikan Hasil Pengujian
+Menyusun tabel hasil pengujian berisi status validasi setiap fitur.
+Melalui pengujian ini, dapat diketahui bahwa sistem telah berfungsi sesuai rancangan dan memenuhi kebutuhan pengguna. Hasil pengujian Blackbox menjadi dasar dalam menilai keberhasilan sistem informasi e-ticketing yang dikembangkan.
+
+Penulisan Laporan
+Tahap penulisan laporan merupakan proses penyusunan hasil penelitian secara sistematis agar seluruh tahapan pengembangan sistem dapat terdokumentasi dengan baik. Penulisan laporan ini mengikuti pedoman tugas akhir yang berlaku di ITB STIKOM Bali, meliputi tahapan analisis, perancangan, implementasi, dan pengujian sistem. Laporan ini disusun dengan bahasa ilmiah dan struktur yang runtut sehingga dapat menjadi acuan bagi pihak lain yang ingin mengembangkan sistem serupa. Selain itu, penulisan laporan juga berfungsi sebagai bentuk pertanggungjawaban atas hasil penelitian yang telah dilakukan.
+
+
+Halaman Ini Sengaja Dikosongkan
+BAB IVJADWAL KERJA
+
+Bab ini menjelaskan tahapan kegiatan penelitian yang dilakukan selama proses perancangan sistem informasi e-ticketing pada Pura Lempuyang berbasis website menggunakan framework Laravel. Setiap kegiatan disusun secara sistematis berdasarkan urutan kerja yang telah direncanakan, mulai dari tahap persiapan, pengumpulan data, perancangan sistem, implementasi, pengujian, hingga penyusunan laporan. Jadwal kerja ini berfungsi sebagai pedoman waktu pelaksanaan agar penelitian dapat berjalan efektif, terarah, dan selesai sesuai dengan target yang telah ditentukan. Jadwal kerja dalam penelitian ini dapat dilihat pada Tabel 4.1 di bawah ini.
+
+Tabel 4.1 Jadwal Kerja
+
+Berdasarkan Tabel 4.1 yang merupakan tabel perencanaan, tabel tersebut adalah rencana yang sudah dibuat mengenai perkiraan waktu yang dibutuhkan dalam pembuatan sistem dan penelitian ini. Adapun keterangan dari tabel tersebut, yaitu:
+Pengumpulan data dilakukan selama 2 minggu, yaitu pada minggu pertama dan kedua pada bulan Desember 2025.
+Analisis kebutuhan sistem dilakukan selama 4 minggu mulai dari minggu pertama hingga minggu keempat pada bulan Desember 2025.
+Perancangan sistem dilakukan selama 6 minggu setelah selesai mengumpulkan data dan menganalisis kebutuhan, yaitu pada minggu pertama bulan Desember, hingga minggu pertama bulan Januari 2026.
+Pembuatan sistem dilakukan selama 13 minggu, yang dimulai dari minggu pertama bulan Januari2026 hingga minggu keempat bulan Maret 2025.
+Pengujian sistem dilakukan selama 4 minggu, mulai dari minggu ketiga pada bulanFebruari 2026.
+Penulisan laporan dilakukan mulai dari minggu pertama bulan Desember 2025 sampai minggu keempat bulan Februari 2026.
+
+DAFTAR PUSTAKA
+

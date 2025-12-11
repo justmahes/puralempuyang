@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
@@ -23,6 +23,14 @@ const UserDashboard = () => {
       return data.data || [];
     },
     enabled: Boolean(token),
+  });
+
+  const { data: myPhotos = [] } = useQuery({
+    queryKey: ['my-photos'],
+    queryFn: async () => {
+      const { data } = await api.get(endpoints.photoMyAssets);
+      return data.data || [];
+    },
   });
 
   const PAGE_SIZE = 5;
@@ -51,6 +59,53 @@ const UserDashboard = () => {
 
     return { total, active, upcoming };
   }, [orders]);
+
+  const recentPaid = useMemo(() => (orders || []).find((o) => o.status === 'paid'), [orders]);
+  const [orderFromRedirect, setOrderFromRedirect] = useState('');
+  useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    const ord = q.get('order');
+    if (ord) setOrderFromRedirect(ord);
+  }, []);
+  const effectiveOrderCode = orderFromRedirect || recentPaid?.order_code || '';
+
+  // Antrean Foto inline on dashboard
+  const { data: photoPoints = [] } = useQuery({
+    queryKey: ['photo-points'],
+    queryFn: async () => (await api.get(endpoints.photoPoints)).data.data || [],
+  });
+  const [photoPointId, setPhotoPointId] = useState(null);
+  useEffect(() => {
+    if (!photoPointId && photoPoints?.length) setPhotoPointId(photoPoints[0].id);
+  }, [photoPoints, photoPointId]);
+  const [photoStatus, setPhotoStatus] = useState(null);
+  const joinPhotoQueue = async () => {
+    if (!effectiveOrderCode) {
+      toast.error('Tidak ada order aktif');
+      return;
+    }
+    if (!photoPointId) {
+      toast.error('Pilih titik foto terlebih dahulu');
+      return;
+    }
+    try {
+      await api.post(endpoints.photoEnqueue, { point_id: photoPointId, order_code: effectiveOrderCode });
+      toast.success('Masuk antrean');
+      await checkPhotoStatus();
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'Gagal masuk antrean');
+    }
+  };
+  const checkPhotoStatus = async () => {
+    if (!effectiveOrderCode) return setPhotoStatus(null);
+    try {
+      const { data } = await api.get(endpoints.photoStatus, { params: { order_code: effectiveOrderCode } });
+      setPhotoStatus(data);
+    } catch {
+      setPhotoStatus(null);
+    }
+  };
+  useEffect(() => { checkPhotoStatus(); }, [effectiveOrderCode]);
 
   const handleContinuePayment = async (order) => {
     if (!isReady) {
@@ -89,6 +144,27 @@ const UserDashboard = () => {
     <div className="min-h-screen bg-cream text-ebony dark:bg-ebony dark:text-cream">
       <Navbar />
       <main className="mx-auto max-w-6xl px-6 pt-28 pb-20 space-y-10">
+        <div>
+          <p className="text-sm text-gold">Selamat datang</p>
+          <h1 className="font-display text-3xl">Dashboard</h1>
+        </div>
+
+        {orderFromRedirect ? (
+          <div className="rounded-2xl border border-cream/60 p-4 text-sm dark:border-white/10">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-semibold">Pembayaran berhasil untuk order {orderFromRedirect}</p>
+                <p className="text-ebony/70 dark:text-cream/70">Ingin langsung bergabung ke antrean foto?</p>
+              </div>
+              <a
+                href={`/photo-queue?order=${encodeURIComponent(orderFromRedirect)}`}
+                className="rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ebony"
+              >
+                Gabung Antrean Foto
+              </a>
+            </div>
+          </div>
+        ) : null}
         <div className="grid gap-4 md:grid-cols-3">
           <MetricCard title="Total Pembelian" value={`Rp ${stats.total.toLocaleString('id-ID')}`} icon={CreditCard} />
           <MetricCard title="Tiket Aktif" value={stats.active} icon={TicketCheck} />
@@ -148,6 +224,77 @@ const UserDashboard = () => {
             </div>
           )}
         </section>
+
+        {/* Foto Saya */}
+        <section className="space-y-4">
+          <div>
+            <p className="text-sm text-gold">Foto Saya</p>
+            <h2 className="font-display text-2xl">Hasil Pemotretan</h2>
+          </div>
+          {myPhotos.length ? (
+            <div className="grid gap-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+              {myPhotos.map((p) => (
+                <a key={p.id} href={p.url} target="_blank" rel="noreferrer" className="block overflow-hidden rounded-xl border border-cream/60">
+                  <img src={p.url} alt="Foto" className="h-32 w-full object-cover" />
+                </a>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-ebony/70 dark:text-cream/70">Belum ada foto.</p>
+          )}
+        </section>
+
+        {/* Antrean Foto (inline) */}
+        <section className="space-y-4">
+          <div>
+            <p className="text-sm text-gold">Antrean Foto</p>
+            <h2 className="font-display text-2xl">Kelola dari Dashboard</h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              className="rounded-2xl border border-cream/70 bg-transparent px-3 py-2"
+              value={photoPointId || ''}
+              onChange={(e) => setPhotoPointId(Number(e.target.value))}
+            >
+              {(photoPoints || []).map((p) => (
+                <option key={p.id} value={p.id} className="text-ebony">{p.name}</option>
+              ))}
+            </select>
+            <button
+              onClick={joinPhotoQueue}
+              disabled={!photoPointId || !effectiveOrderCode}
+              className="rounded-2xl bg-gold px-4 py-2 text-sm font-semibold text-ebony disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              Gabung Antrean
+            </button>
+            <button onClick={checkPhotoStatus} className="rounded-2xl border px-4 py-2 text-sm">
+              Refresh Status
+            </button>
+          </div>
+          {!photoPoints?.length && (
+            <p className="text-xs text-amber-700">Titik foto belum tersedia. Jalankan seeder atau tambah data photo_points.</p>
+          )}
+          <div className="rounded-2xl border border-cream/60 p-4 text-sm dark:border-white/10">
+            {photoStatus?.entry ? (
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold">Nomor Antrean</p>
+                  <p className="text-3xl font-display">#{photoStatus.entry.queue_number}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold">Posisi</p>
+                  <p className="text-3xl font-display">{photoStatus.position ?? 0}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold">Status</p>
+                  <p className="text-base font-semibold capitalize">{photoStatus.entry.status}</p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-ebony/70 dark:text-cream/70">Belum dalam antrean. Pilih titik foto lalu klik “Gabung Antrean”.</p>
+            )}
+          </div>
+        </section>
       </main>
       <Footer />
       <QrModal open={Boolean(selectedTickets)} tickets={selectedTickets || []} onClose={() => setSelectedTickets(null)} />
@@ -156,10 +303,3 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
-
-
-
-
-
-
-

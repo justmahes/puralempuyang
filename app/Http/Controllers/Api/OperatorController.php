@@ -10,6 +10,75 @@ use Illuminate\Support\Facades\Validator;
 
 class OperatorController extends Controller
 {
+    public function snapshot(Request $request)
+    {
+        // Snapshot tiket untuk hari ini; ringkas untuk offline cache
+        $today = now()->toDateString();
+        $items = OrderItem::select([
+                'order_items.ticket_code',
+                'order_items.status',
+                'orders.status as order_status',
+                'visit_slots.visit_date',
+                'visit_slots.start_time',
+                'visit_slots.end_time',
+            ])
+            ->join('orders', 'orders.id', '=', 'order_items.order_id')
+            ->join('visit_slots', 'visit_slots.id', '=', 'orders.visit_slot_id')
+            ->whereDate('visit_slots.visit_date', $today)
+            ->limit(2000)
+            ->get();
+
+        return response()->json(['data' => $items, 'date' => $today, 'generated_at' => now()->toIso8601String()]);
+    }
+
+    public function validateBatch(Request $request)
+    {
+        $data = Validator::make($request->all(), [
+            'items' => 'required|array|min:1',
+            'items.*.ticket_code' => 'required|string|exists:order_items,ticket_code',
+            'items.*.validated_at_client' => 'nullable|date',
+        ])->validate();
+
+        $results = [
+            'processed' => 0,
+            'updated' => 0,
+            'skipped' => 0,
+            'conflicts' => [],
+        ];
+
+        foreach ($data['items'] as $entry) {
+            $code = $entry['ticket_code'];
+            $item = OrderItem::with(['order' => fn ($q) => $q->with('slot')])
+                ->where('ticket_code', $code)
+                ->first();
+
+            $results['processed']++;
+            if (!$item) {
+                $results['skipped']++;
+                continue;
+            }
+
+            if (!in_array($item->order->status, ['paid', 'used'], true)) {
+                // belum paid; tidak bisa validasi
+                $results['skipped']++;
+                continue;
+            }
+
+            if ($item->status === 'used') {
+                $results['skipped']++;
+                continue;
+            }
+
+            // Tandai sebagai used
+            $item->update([
+                'status' => 'used',
+                'validated_at' => now(),
+            ]);
+            $results['updated']++;
+        }
+
+        return response()->json(['message' => 'Batch processed', 'result' => $results]);
+    }
     public function tickets(Request $request)
     {
         $status = $request->query('status');

@@ -76,6 +76,45 @@ const AdminDashboard = () => {
     },
   });
 
+  // Photo Points
+  const { data: photoPoints = [] } = useQuery({
+    queryKey: ['admin-photo-points'],
+    queryFn: async () => (await api.get(endpoints.adminPhotoPoints)).data.data || [],
+  });
+  const [pointForm, setPointForm] = useState({ id: '', name: '', location: '', is_active: true });
+  const [savingPoint, setSavingPoint] = useState(false);
+  const [deletingPointId, setDeletingPointId] = useState(null);
+  const savePoint = async () => {
+    try {
+      setSavingPoint(true);
+      const payload = { name: pointForm.name, location: pointForm.location, is_active: pointForm.is_active };
+      if (pointForm.id) {
+        await api.put(endpoints.adminPhotoPoints, { id: pointForm.id, ...payload });
+      } else {
+        await api.post(endpoints.adminPhotoPoints, payload);
+      }
+      toast.success('Titik foto disimpan');
+      setPointForm({ id: '', name: '', location: '', is_active: true });
+      queryClient.invalidateQueries({ queryKey: ['admin-photo-points'] });
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'Gagal menyimpan titik foto');
+    } finally {
+      setSavingPoint(false);
+    }
+  };
+  const deletePoint = async (id) => {
+    try {
+      setDeletingPointId(id);
+      await api.delete(endpoints.adminPhotoPoints, { data: { id } });
+      toast('Titik foto dihapus');
+      queryClient.invalidateQueries({ queryKey: ['admin-photo-points'] });
+    } catch (e) {
+      toast.error(e?.response?.data?.message || 'Gagal menghapus');
+    } finally {
+      setDeletingPointId(null);
+    }
+  };
+
   const orders = useMemo(
     () => (ordersData || []).filter((order) => order?.user?.name !== EXCLUDED_CUSTOMER),
     [ordersData]
@@ -396,7 +435,66 @@ const AdminDashboard = () => {
               Buat Akun
             </button>
           </form>
-        </section>
+      </section>
+
+      {/* ======= TITIK FOTO ======= */}
+      <section className="glass-panel rounded-3xl p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gold">Titik Foto</p>
+            <h3 className="font-display text-2xl">Kelola Photo Points</h3>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-6 md:grid-cols-2">
+          <div className="space-y-3">
+            <div>
+              <label className="text-xs font-semibold">Nama</label>
+              <input value={pointForm.name} onChange={(e)=>setPointForm((f)=>({...f,name:e.target.value}))} className="mt-2 w-full rounded-2xl border border-cream/60 bg-transparent px-3 py-2" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold">Lokasi</label>
+              <input value={pointForm.location} onChange={(e)=>setPointForm((f)=>({...f,location:e.target.value}))} className="mt-2 w-full rounded-2xl border border-cream/60 bg-transparent px-3 py-2" />
+            </div>
+            <div className="flex items-center gap-2">
+              <input id="pp-active" type="checkbox" checked={pointForm.is_active} onChange={(e)=>setPointForm((f)=>({...f,is_active:e.target.checked}))} />
+              <label htmlFor="pp-active" className="text-sm">Aktif</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={savePoint} disabled={!pointForm.name || savingPoint} className="rounded-2xl bg-gold px-4 py-2 text-sm font-semibold text-ebony disabled:opacity-60">{pointForm.id? 'Simpan Perubahan':'Tambah Titik'}</button>
+              {pointForm.id && (
+                <button onClick={()=>setPointForm({ id:'', name:'', location:'', is_active:true })} className="rounded-2xl border px-4 py-2 text-sm">Batal</button>
+              )}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase text-ebony/50 dark:text-cream/60">
+                  <th className="py-2">Nama</th>
+                  <th>Lokasi</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(photoPoints || []).map((p)=> (
+                  <tr key={p.id} className="border-t border-cream/50 text-sm dark:border-white/5">
+                    <td className="py-2 font-semibold">{p.name}</td>
+                    <td>{p.location || '-'}</td>
+                    <td>{p.is_active ? 'Aktif' : 'Nonaktif'}</td>
+                    <td>
+                      <div className="flex gap-2">
+                        <button onClick={()=>setPointForm({ id:p.id, name:p.name, location:p.location||'', is_active:!!p.is_active })} className="rounded-full border px-3 py-1 text-xs">Edit</button>
+                        <button onClick={()=>deletePoint(p.id)} disabled={deletingPointId===p.id} className="rounded-full border px-3 py-1 text-xs disabled:opacity-60">Hapus</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
 
         <section className="glass-panel rounded-3xl p-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -684,4 +782,3 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
-

@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\TicketType;
 use App\Models\User;
 use App\Models\VisitSlot;
+use App\Models\PhotoPoint;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,17 @@ class InitialSeeder extends Seeder
                 'role' => 'admin',
                 'citizenship_type' => 'domestic',
                 'password' => Hash::make('admin123'),
+            ]
+        );
+
+        // Default operator account
+        User::query()->updateOrCreate(
+            ['email' => 'operator@puralempuyang.com'],
+            [
+                'name' => 'Petugas Gerbang',
+                'role' => 'operator',
+                'citizenship_type' => 'domestic',
+                'password' => Hash::make('operator123'),
             ]
         );
 
@@ -85,6 +97,13 @@ class InitialSeeder extends Seeder
                 }
             }
         }
+
+        // Photo points default
+        PhotoPoint::query()->updateOrCreate([
+            'name' => 'Gate of Heaven',
+        ], [
+            'location' => 'Pura Lempuyang - Spot Utama',
+            'is_active' => true,
+        ]);
     }
 }
-
