@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ShieldCheck, Sparkles, Sunrise } from 'lucide-react';
+import { useI18n } from '../../i18n/I18nContext';
 
 // Data Highlights
 const heroHighlights = [
@@ -33,6 +34,29 @@ const heroStats = [
   { label: 'Operator aktif', value: '40+' },
 ];
 
+const getHeroContent = (locale) => {
+  const isEn = locale === 'en';
+  return {
+    badge: 'Dharma & Digital',
+    headline: isEn
+      ? 'Enjoy a guided spiritual journey to the Gate of Heaven—no long queues, still full of meaning.'
+      : 'Nikmati perjalanan spiritual menuju Gate of Heaven yang kini lebih terarah, tanpa antre, dan tetap penuh makna.',
+    subhead: isEn
+      ? 'We blend the sacred atmosphere of Pura Lempuyang with a modern reservation system. Book a slot, track quota, and receive your QR ticket in one simple flow.'
+      : 'Kami memadukan atmosfer spiritual Pura Lempuyang dengan sistem reservasi modern. Pesan slot, pantau kuota, dan terima QR tiket dalam satu langkah sederhana.',
+    ctaPrimary: isEn ? 'Book Tickets' : 'Pesan Tiket Sekarang',
+    ctaSecondary: isEn ? 'See Journey Flow' : 'Lihat Alur Perjalanan',
+    panelTitle: isEn ? 'Meaningful experiences, curated' : 'Kurasi pengalaman penuh makna',
+    panelDesc: isEn
+      ? 'Focus on the sacred moments; we handle queues, payments, and access.'
+      : 'Fokus pada hal-hal sakral di pura, biarkan platform kami menangani antrean, pembayaran, dan akses.',
+    stats: [
+      { label: isEn ? 'Trusted pilgrims' : 'Peziarah percaya', value: '120K+' },
+      { label: isEn ? 'Active operators' : 'Operator aktif', value: '40+' },
+    ],
+  };
+};
+
 // Variants untuk animasi Framer Motion
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -51,7 +75,11 @@ const cardVariants = {
   },
 };
 
-const Hero = () => (
+const Hero = () => {
+  const { locale } = useI18n();
+  const content = getHeroContent(locale);
+
+  return (
   <section
     className="relative isolate overflow-hidden hero-gate bg-cover bg-center scroll-mt-28"
     id="hero"
@@ -69,7 +97,7 @@ const Hero = () => (
           transition={{ delay: 0.2 }}
           className="inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-1 text-[11px] uppercase tracking-[0.35em]"
         >
-          Dharma & Digital
+          {content.badge}
         </motion.span>
 
         <motion.h1
@@ -78,7 +106,7 @@ const Hero = () => (
           transition={{ delay: 0.35 }}
           className="font-display text-4xl leading-tight sm:text-5xl md:text-6xl"
         >
-          Nikmati perjalanan spiritual menuju Gate of Heaven yang kini lebih terarah, tanpa antre, dan tetap penuh makna.
+          {content.headline}
         </motion.h1>
 
         <motion.p
@@ -87,9 +115,7 @@ const Hero = () => (
           transition={{ delay: 0.5 }}
           className="max-w-2xl text-base text-white/80 sm:text-lg"
         >
-          Kami memadukan atmosfer spiritual Pura Lempuyang dengan sistem
-          reservasi modern. Pesan slot, pantau kuota, dan terima QR tiket dalam
-          satu langkah sederhana.
+          {content.subhead}
         </motion.p>
 
         <motion.div
@@ -102,13 +128,13 @@ const Hero = () => (
             to="/booking"
             className="rounded-full bg-gold px-6 py-3 text-sm font-semibold text-ebony shadow-glow transition hover:-translate-y-0.5 hover:shadow-lg"
           >
-            Pesan Tiket Sekarang
+            {content.ctaPrimary}
           </Link>
           <a
             href="#journey"
             className="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white/90 hover:bg-white/10"
           >
-            Lihat Alur Perjalanan
+            {content.ctaSecondary}
           </a>
         </motion.div>
 
@@ -118,7 +144,7 @@ const Hero = () => (
           transition={{ delay: 0.8 }}
           className="flex flex-wrap gap-8 text-xs uppercase tracking-widest text-white/70"
         >
-          {heroStats.map((stat) => (
+          {content.stats.map((stat) => (
             <div key={stat.label}>
               <p className="text-2xl font-semibold text-white">{stat.value}</p>
               {stat.label}
@@ -146,12 +172,11 @@ const Hero = () => (
           </div>
 
           <h3 className="font-display text-[22px] leading-snug">
-            Kurasi pengalaman penuh makna
+            {content.panelTitle}
           </h3>
 
           <p className="text-[13px] text-ebony/70 leading-relaxed">
-            Fokus pada hal-hal sakral di pura, biarkan platform kami menangani
-            antrean, pembayaran, dan akses.
+            {content.panelDesc}
           </p>
 
           {/* Highlight Cards */}
@@ -190,6 +215,7 @@ const Hero = () => (
       </motion.div>
     </div>
   </section>
-);
+  );
+};
 
 export default Hero;

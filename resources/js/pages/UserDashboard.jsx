@@ -10,9 +10,11 @@ import MetricCard from '../components/dashboard/MetricCard';
 import { CreditCard, TicketCheck, Timer } from 'lucide-react';
 import { useMidtransSnap } from '../hooks/useMidtransSnap';
 import toast from 'react-hot-toast';
+import { useI18n } from '../i18n/I18nContext';
 
 const UserDashboard = () => {
   const { token } = useAuth();
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { openSnap, isReady } = useMidtransSnap();
   const [selectedTickets, setSelectedTickets] = useState(null);
@@ -81,16 +83,16 @@ const UserDashboard = () => {
   const [photoStatus, setPhotoStatus] = useState(null);
   const joinPhotoQueue = async () => {
     if (!effectiveOrderCode) {
-      toast.error('Tidak ada order aktif');
+      toast.error(t('dashboard.noActiveOrder'));
       return;
     }
     if (!photoPointId) {
-      toast.error('Pilih titik foto terlebih dahulu');
+      toast.error(t('dashboard.selectPointFirst'));
       return;
     }
     try {
       await api.post(endpoints.photoEnqueue, { point_id: photoPointId, order_code: effectiveOrderCode });
-      toast.success('Masuk antrean');
+      toast.success(t('dashboard.joinQueue'));
       await checkPhotoStatus();
     } catch (e) {
       toast.error(e?.response?.data?.message || 'Gagal masuk antrean');
@@ -123,7 +125,11 @@ const UserDashboard = () => {
             });
             toast.success('Pembayaran berhasil');
           } catch (err) {
-            toast.error(err.response?.orders?.message || 'Gagal sinkronisasi status pembayaran');
+            if (err.response?.status === 401) {
+              // Auth interceptor will handle logout + toast.
+              return;
+            }
+            toast.error(err.response?.data?.message || 'Gagal sinkronisasi status pembayaran');
           } finally {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
           }
@@ -135,7 +141,9 @@ const UserDashboard = () => {
         },
       });
     } catch (error) {
-      toast.error(error.response?.orders?.message || 'Gagal melanjutkan pembayaran');
+      if (error.response?.status !== 401) {
+        toast.error(error.response?.data?.message || 'Gagal melanjutkan pembayaran');
+      }
       queryClient.invalidateQueries({ queryKey: ['orders'] });
     }
   };
@@ -145,8 +153,8 @@ const UserDashboard = () => {
       <Navbar />
       <main className="mx-auto max-w-6xl px-6 pt-28 pb-20 space-y-10">
         <div>
-          <p className="text-sm text-gold">Selamat datang</p>
-          <h1 className="font-display text-3xl">Dashboard</h1>
+          <p className="text-sm text-gold">{t('dashboard.welcome')}</p>
+          <h1 className="font-display text-3xl">{t('dashboard.dashboard')}</h1>
         </div>
 
         {orderFromRedirect ? (
@@ -172,8 +180,8 @@ const UserDashboard = () => {
         </div>
         <section className="space-y-4">
           <div>
-            <p className="text-sm text-gold">Tiket Saya</p>
-            <h1 className="font-display text-3xl">Semua Transaksi</h1>
+            <p className="text-sm text-gold">{t('dashboard.myTickets')}</p>
+            <h1 className="font-display text-3xl">{t('dashboard.allTransactions')}</h1>
           </div>
           <div className="grid gap-4">
             {paginatedOrders.length ? (
@@ -186,7 +194,7 @@ const UserDashboard = () => {
                 />
               ))
             ) : (
-              <p className="text-sm text-ebony/70">Belum ada transaksi</p>
+              <p className="text-sm text-ebony/70">{t('dashboard.noTransactions')}</p>
             )}
           </div>
           {orders.length > PAGE_SIZE && (
@@ -228,8 +236,8 @@ const UserDashboard = () => {
         {/* Foto Saya */}
         <section className="space-y-4">
           <div>
-            <p className="text-sm text-gold">Foto Saya</p>
-            <h2 className="font-display text-2xl">Hasil Pemotretan</h2>
+            <p className="text-sm text-gold">{t('dashboard.myPhotos')}</p>
+            <h2 className="font-display text-2xl">{t('dashboard.myPhotos')}</h2>
           </div>
           {myPhotos.length ? (
             <div className="grid gap-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
@@ -240,15 +248,15 @@ const UserDashboard = () => {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-ebony/70 dark:text-cream/70">Belum ada foto.</p>
+            <p className="text-sm text-ebony/70 dark:text-cream/70">{t('dashboard.photosEmpty')}</p>
           )}
         </section>
 
         {/* Antrean Foto (inline) */}
         <section className="space-y-4">
           <div>
-            <p className="text-sm text-gold">Antrean Foto</p>
-            <h2 className="font-display text-2xl">Kelola dari Dashboard</h2>
+            <p className="text-sm text-gold">{t('dashboard.photoQueue')}</p>
+            <h2 className="font-display text-2xl">{t('dashboard.manageFromDashboard')}</h2>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <select
@@ -265,10 +273,10 @@ const UserDashboard = () => {
               disabled={!photoPointId || !effectiveOrderCode}
               className="rounded-2xl bg-gold px-4 py-2 text-sm font-semibold text-ebony disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Gabung Antrean
+              {t('dashboard.joinQueue')}
             </button>
             <button onClick={checkPhotoStatus} className="rounded-2xl border px-4 py-2 text-sm">
-              Refresh Status
+              {t('dashboard.refreshStatus')}
             </button>
           </div>
           {!photoPoints?.length && (
@@ -278,15 +286,15 @@ const UserDashboard = () => {
             {photoStatus?.entry ? (
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-gold">Nomor Antrean</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold">{t('dashboard.queueNumber')}</p>
                   <p className="text-3xl font-display">#{photoStatus.entry.queue_number}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-gold">Posisi</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold">{t('dashboard.position')}</p>
                   <p className="text-3xl font-display">{photoStatus.position ?? 0}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] text-gold">Status</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-gold">{t('dashboard.status')}</p>
                   <p className="text-base font-semibold capitalize">{photoStatus.entry.status}</p>
                 </div>
               </div>

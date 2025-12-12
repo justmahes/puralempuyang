@@ -5,9 +5,11 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { useI18n } from '../i18n/I18nContext';
 
 const AuthPage = ({ mode = 'login' }) => {
   const { register: registerUser, login } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const form = useForm({
@@ -67,51 +69,51 @@ const AuthPage = ({ mode = 'login' }) => {
           animate={{ opacity: 1, y: 0 }}
           className="glass-panel w-full max-w-md rounded-3xl border border-cream/60 bg-white/95 px-8 py-10 shadow-2xl dark:border-white/10 dark:bg-ebony/90"
         >
-          <p className="text-sm uppercase tracking-[0.4em] text-gold">{isRegister ? 'Bergabung' : 'Selamat Datang'}</p>
+          <p className="text-sm uppercase tracking-[0.4em] text-gold">{isRegister ? t('auth.join') : t('auth.welcome')}</p>
           <h1 className="mt-2 font-display text-3xl">
-            {isRegister ? 'Daftar Akun Baru' : 'Masuk ke Akun Anda'}
+            {isRegister ? t('auth.registerTitle') : t('auth.loginTitle')}
           </h1>
           <form className="mt-8 space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             {isRegister && (
               <div>
-                <label className="text-xs font-semibold">Nama Lengkap</label>
+                <label className="text-xs font-semibold">{t('auth.fullName')}</label>
                 <input {...form.register('name', { required: true })} className="mt-2 w-full rounded-2xl border border-cream/60 bg-transparent px-3 py-2" />
               </div>
             )}
             <div>
-              <label className="text-xs font-semibold">Email</label>
+              <label className="text-xs font-semibold">{t('auth.email')}</label>
               <input type="email" {...form.register('email', { required: true })} className="mt-2 w-full rounded-2xl border border-cream/60 bg-transparent px-3 py-2" />
             </div>
             <div>
-              <label className="text-xs font-semibold">Password</label>
+              <label className="text-xs font-semibold">{t('auth.password')}</label>
               <input type="password" {...form.register('password', { required: true })} className="mt-2 w-full rounded-2xl border border-cream/60 bg-transparent px-3 py-2" />
             </div>
             {isRegister && (
               <>
                 <div>
-                  <label className="text-xs font-semibold">Nomor WhatsApp</label>
+                  <label className="text-xs font-semibold">{t('auth.whatsapp')}</label>
                   <input {...form.register('phone')} className="mt-2 w-full rounded-2xl border border-cream/60 bg-white text-ebony dark:border-white/20 dark:bg-ebony/60 dark:text-cream px-3 py-2" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold">Jenis Pengunjung</label>
+                  <label className="text-xs font-semibold">{t('auth.visitorType')}</label>
                   <select
                     {...form.register('citizenship_type', { required: true })}
                     className="mt-2 w-full rounded-2xl border border-cream/60 bg-white text-ebony dark:border-white/20 dark:bg-ebony/60 dark:text-cream px-3 py-2 focus:outline-none focus:ring-2 focus:ring-gold/60 appearance-none"
                   >
-                    <option value='domestic'>Wisatawan Domestik (WNI)</option>
-                    <option value='international'>Wisatawan Mancanegara</option>
+                    <option value='domestic'>{t('auth.domestic')}</option>
+                    <option value='international'>{t('auth.international')}</option>
                   </select>
                 </div>
               </>
             )}
             <button type="submit" className="w-full rounded-2xl bg-gold py-3 text-sm font-semibold text-ebony">
-              {isRegister ? 'Daftar' : 'Masuk'}
+              {isRegister ? t('auth.submitRegister') : t('auth.submitLogin')}
             </button>
           </form>
           <p className="mt-6 text-center text-xs text-ebony/70 dark:text-cream/70">
-            {isRegister ? 'Sudah punya akun?' : 'Belum punya akun?'}{' '}
+            {isRegister ? t('auth.haveAccount') : t('auth.noAccount')}{' '}
             <Link to={isRegister ? '/login' : '/register'} className="text-gold">
-              {isRegister ? 'Masuk' : 'Daftar'}
+              {isRegister ? t('nav.login') : t('nav.register')}
             </Link>
           </p>
         </motion.div>
@@ -122,4 +124,3 @@ const AuthPage = ({ mode = 'login' }) => {
 };
 
 export default AuthPage;
-

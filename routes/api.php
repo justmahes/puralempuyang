@@ -32,6 +32,9 @@ Route::middleware('auth.jwt')->group(function () {
     Route::post('payments/token', [PaymentController::class, 'snapToken']);
     Route::post('payments/verify', [PaymentController::class, 'verify']);
 
+    // Photo points are visible to all authenticated users (for joining queue)
+    Route::get('photo/points', [PhotoQueueController::class, 'points']);
+
         Route::get('operator/tickets', [OperatorController::class, 'tickets'])->middleware('role:operator,admin');
         Route::get('operator/stats', [OperatorController::class, 'stats'])->middleware('role:operator,admin');
         Route::post('operator/validate', [OperatorController::class, 'validateTicket'])->middleware('role:operator,admin');
@@ -64,7 +67,6 @@ Route::middleware('auth.jwt')->group(function () {
         });
 
         // Photo queue (operator & admin)
-        Route::get('photo/points', [PhotoQueueController::class, 'points'])->middleware('role:operator,admin');
         Route::get('photo/queue', [PhotoQueueController::class, 'list'])->middleware('role:operator,admin');
         Route::post('photo/queue/call-next', [PhotoQueueController::class, 'callNext'])->middleware('role:operator,admin');
         Route::post('photo/queue/mark-shooting', [PhotoQueueController::class, 'markShooting'])->middleware('role:operator,admin');

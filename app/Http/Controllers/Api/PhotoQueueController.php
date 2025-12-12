@@ -220,6 +220,8 @@ class PhotoQueueController extends Controller
         $saved = [];
         foreach ($request->file('files', []) as $file) {
             $path = $file->store('photos/'.$entry->id, 'public');
+            // Normalize Windows backslashes to URL-friendly slashes
+            $path = str_replace('\\', '/', $path);
             $asset = PhotoAsset::create([
                 'photo_queue_entry_id' => $entry->id,
                 'file_path' => $path,
@@ -242,9 +244,10 @@ class PhotoQueueController extends Controller
             ->limit(100)
             ->get()
             ->map(function ($asset) {
+                $path = str_replace('\\', '/', $asset->file_path);
                 return [
                     'id' => $asset->id,
-                    'url' => Storage::disk('public')->url($asset->file_path),
+                    'url' => Storage::disk('public')->url($path),
                     'mime' => $asset->mime,
                     'size' => $asset->size,
                     'created_at' => $asset->created_at?->toDateTimeString(),

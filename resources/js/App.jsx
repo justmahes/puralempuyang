@@ -35,7 +35,7 @@ const AppRoutes = () => {
         <Route path="/register" element={<AuthPage mode="register" />} />
         <Route path="/booking" element={<BookingPage />} />
 
-        <Route element={<ProtectedRoute roles={['user']} fallback="/admin" />}>
+        <Route element={<ProtectedRoute roles={['user']} fallback="/dashboard" />}>
           <Route path="/dashboard" element={<UserDashboard />} />
         </Route>
 
@@ -59,7 +59,5 @@ const AppRoutes = () => {
 };
 
 export default AppRoutes;
-
-
 
 

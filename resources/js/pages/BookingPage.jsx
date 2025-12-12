@@ -8,6 +8,7 @@ import api, { endpoints } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { useMidtransSnap } from '../hooks/useMidtransSnap';
+import { useI18n } from '../i18n/I18nContext';
 
 const PRICE_RANGE = {
   domestic: { label: 'Rp 30.000,00', base: 30000 },
@@ -16,6 +17,7 @@ const PRICE_RANGE = {
 
 const BookingPage = () => {
   const { user } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isReady, openSnap } = useMidtransSnap();
@@ -53,21 +55,21 @@ const BookingPage = () => {
 
   const handlePay = async () => {
     if (!user) {
-      toast.error('Silakan login terlebih dahulu.');
+      toast.error(t('booking.loginFirst'));
       navigate('/login');
       return;
     }
     if (!selectedSlot) {
-      toast.error('Pilih jadwal terlebih dahulu.');
+      toast.error(t('booking.selectSchedule'));
       return;
     }
     if (!user?.citizenship_type) {
-      toast.error('Lengkapi jenis pengunjung di profil Anda.');
+      toast.error(t('booking.fillVisitorType'));
       navigate('/profile');
       return;
     }
     if (selectedSlot.ticket_category && selectedSlot.ticket_category !== user.citizenship_type) {
-      toast.error('Slot ini tidak sesuai dengan kategori pengunjung Anda.');
+      toast.error(t('booking.slotMismatch'));
       return;
     }
 
@@ -124,7 +126,7 @@ const BookingPage = () => {
     
     {/* BAGIAN KIRI - SLOT KUNJUNGAN */}
     <section className="flex-1 space-y-4">
-      <h1 className="font-display text-3xl">Pilih Slot Kunjungan</h1>
+      <h1 className="font-display text-3xl">{t('booking.title')}</h1>
       <p className="text-xs uppercase tracking-[0.4em] text-gold">{categoryPillLabel}</p>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -150,7 +152,7 @@ const BookingPage = () => {
                 {slot.start_time.slice(0, 5)} - {slot.end_time.slice(0, 5)}
               </p>
               <p className="mt-2 text-sm text-ebony/70 dark:text-cream/70">
-                Kuota tersisa {slot.quota_remaining} dari {slot.quota_total}
+                {t('booking.remainingQuota', { remaining: slot.quota_remaining, total: slot.quota_total })}
               </p>
               <p className="mt-3 font-semibold">
                 Rp {Number(slot.price).toLocaleString('id-ID')}
@@ -159,7 +161,7 @@ const BookingPage = () => {
           ))
         ) : (
           <p className="text-sm text-ebony/70 dark:text-cream/70">
-            Belum ada slot untuk kategori pengunjung Anda.
+            {t('booking.noSlots')}
           </p>
         )}
       </div>
@@ -169,13 +171,13 @@ const BookingPage = () => {
     <aside className="lg:w-[340px] w-full">
       <div className="rounded-3xl bg-white/90 backdrop-blur-md p-6 shadow-lg dark:bg-white/10 dark:shadow-none">
         <h3 className="font-semibold text-sm text-gold uppercase tracking-[0.2em]">
-          Ringkasan Pembelian
+          {t('booking.summary')}
         </h3>
 
         <div className="mt-5 space-y-5 text-sm">
           {/* Slot */}
           <div>
-            <p className="text-[11px] uppercase text-ebony/60 dark:text-cream/60 mb-1">Slot</p>
+            <p className="text-[11px] uppercase text-ebony/60 dark:text-cream/60 mb-1">{t('booking.slot')}</p>
             <p className="text-base font-semibold">
               {selectedSlot ? selectedSlot.ticket_name : (
                 <span className="text-ebony/40">Belum dipilih</span>
@@ -185,7 +187,7 @@ const BookingPage = () => {
 
           {/* Jumlah Orang */}
           <div>
-            <p className="text-[11px] uppercase text-ebony/60 dark:text-cream/60 mb-2">Jumlah Orang</p>
+            <p className="text-[11px] uppercase text-ebony/60 dark:text-cream/60 mb-2">{t('booking.people')}</p>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -206,7 +208,7 @@ const BookingPage = () => {
           {/* Total Pembayaran */}
           <div className="border-t border-cream/40 pt-4">
             <div className="flex justify-between items-center">
-              <p className="text-sm font-medium">Total Pembayaran</p>
+              <p className="text-sm font-medium">{t('booking.total')}</p>
               <span className="text-lg font-semibold text-gold">
                 {selectedSlot
                   ? `Rp ${(quantity * (selectedSlot.price ?? PRICE_RANGE[selectedSlot.ticket_category]?.base ?? 0)).toLocaleString('id-ID')}`
@@ -229,7 +231,7 @@ const BookingPage = () => {
           disabled={!isReady}
           className="mt-6 w-full rounded-xl bg-gold py-3 text-sm font-semibold text-ebony shadow transition hover:-translate-y-0.5 hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          {isReady ? 'Bayar via Midtrans' : 'Memuat Midtrans...'}
+          {isReady ? t('booking.pay') : t('booking.loadingPay')}
         </button>
       </div>
     </aside>

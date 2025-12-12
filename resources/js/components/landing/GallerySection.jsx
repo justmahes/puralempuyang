@@ -1,41 +1,57 @@
 import { motion } from 'framer-motion';
+import { useI18n } from '../../i18n/I18nContext';
 
-const galleryItems = [
-  {
-    title: 'Prosesi Penyineban',
-    caption: 'Momen teduh ketika dupa pertama dinyalakan, ditemani kabut lembah.',
-    tag: 'Upacara',
-    image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    title: 'Gerbang Surga',
-    caption: 'Siluet Gunung Agung menjadi latar foto favorit wisatawan mancanegara.',
-    tag: 'Panorama',
-    image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    title: 'Ritual Canang',
-    caption: 'Ibu-ibu krama menyiapkan canang sari sebelum rombongan memasuki pelataran.',
-    tag: 'Budaya',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    title: 'Jalur Mendaki',
-    caption: 'Rimbun pepohonan menuju Pura Lempuyang selalu menghadirkan udara segar.',
-    tag: 'Perjalanan',
-    image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80',
-  },
-];
+const GallerySection = () => {
+  const { locale } = useI18n();
+  const isEn = locale === 'en';
+  const galleryItems = [
+    {
+      title: isEn ? 'Penyineban Ceremony' : 'Prosesi Penyineban',
+      caption: isEn
+        ? 'A quiet moment as the first incense is lit, wrapped in valley mist.'
+        : 'Momen teduh ketika dupa pertama dinyalakan, ditemani kabut lembah.',
+      tag: isEn ? 'Ceremony' : 'Upacara',
+      image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=80',
+    },
+    {
+      title: isEn ? 'Gate of Heaven' : 'Gerbang Surga',
+      caption: isEn
+        ? 'Mount Agung silhouettes create a favorite photo backdrop.'
+        : 'Siluet Gunung Agung menjadi latar foto favorit wisatawan mancanegara.',
+      tag: isEn ? 'Panorama' : 'Panorama',
+      image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80',
+    },
+    {
+      title: isEn ? 'Canang Ritual' : 'Ritual Canang',
+      caption: isEn
+        ? 'Locals prepare canang sari offerings before groups enter the courtyard.'
+        : 'Ibu-ibu krama menyiapkan canang sari sebelum rombongan memasuki pelataran.',
+      tag: isEn ? 'Culture' : 'Budaya',
+      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+    },
+    {
+      title: isEn ? 'Hiking Trail' : 'Jalur Mendaki',
+      caption: isEn
+        ? 'Lush trees along the path always bring fresh mountain air.'
+        : 'Rimbun pepohonan menuju Pura Lempuyang selalu menghadirkan udara segar.',
+      tag: isEn ? 'Journey' : 'Perjalanan',
+      image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80',
+    },
+  ];
 
-const GallerySection = () => (
+  return (
   <section id="galeri" className="section-padding scroll-mt-28 bg-gradient-to-b from-white via-cream/40 to-white dark:from-charcoal dark:via-ebony dark:to-charcoal">
     <div className="mx-auto max-w-6xl px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.4em] text-gold">Galeri</p>
-          <h2 className="font-display text-3xl">Budaya & panorama yang kami rayakan</h2>
+          <p className="text-sm uppercase tracking-[0.4em] text-gold">{isEn ? 'Gallery' : 'Galeri'}</p>
+          <h2 className="font-display text-3xl">
+            {isEn ? 'Culture & panoramas we celebrate' : 'Budaya & panorama yang kami rayakan'}
+          </h2>
           <p className="mt-2 text-sm text-ebony/70 dark:text-cream/70">
-            Sorotan visual bergerak lembut saat Anda menggulir, menghadirkan nuansa Pura Lempuyang langsung ke layar.
+            {isEn
+              ? 'A gentle visual showcase that brings Pura Lempuyang to your screen.'
+              : 'Sorotan visual bergerak lembut saat Anda menggulir, menghadirkan nuansa Pura Lempuyang langsung ke layar.'}
           </p>
         </div>
       </div>
@@ -68,6 +84,7 @@ const GallerySection = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export default GallerySection;

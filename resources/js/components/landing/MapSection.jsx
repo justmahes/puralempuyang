@@ -1,22 +1,32 @@
 import { motion } from 'framer-motion';
 import { Clock8, MapPin, ShieldCheck } from 'lucide-react';
+import { useI18n } from '../../i18n/I18nContext';
 
-const tips = [
-  {
-    icon: Clock8,
-    text: 'Perjalanan dari Denpasar 2,5 jam,  alokasikan waktu untuk menyiapkan persembahan.'
-  },
-  {
-    icon: ShieldCheck,
-    text: 'Datang 30 menit sebelum slot untuk briefing busana, kain kamen, dan selendang.'
-  },
-  {
-    icon: MapPin,
-    text: 'Ikuti jalur shuttle resmi agar perjalanan lebih nyaman dan ramah lingkungan.'
-  },
-];
+const MapSection = () => {
+  const { locale } = useI18n();
+  const isEn = locale === 'en';
+  const tips = [
+    {
+      icon: Clock8,
+      text: isEn
+        ? 'Travel from Denpasar takes about 2.5 hours; plan time for offerings.'
+        : 'Perjalanan dari Denpasar 2,5 jam,  alokasikan waktu untuk menyiapkan persembahan.',
+    },
+    {
+      icon: ShieldCheck,
+      text: isEn
+        ? 'Arrive 30 minutes early for attire briefing (kamen and sash).'
+        : 'Datang 30 menit sebelum slot untuk briefing busana, kain kamen, dan selendang.',
+    },
+    {
+      icon: MapPin,
+      text: isEn
+        ? 'Use the official shuttle route for a comfortable, eco‑friendly trip.'
+        : 'Ikuti jalur shuttle resmi agar perjalanan lebih nyaman dan ramah lingkungan.',
+    },
+  ];
 
-const MapSection = () => (
+  return (
   <section id="lokasi" className="section-padding scroll-mt-28 bg-white dark:bg-charcoal">
     <div className="mx-auto max-w-6xl px-6">
       <div className="grid gap-8 md:grid-cols-2">
@@ -25,10 +35,12 @@ const MapSection = () => (
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <p className="text-sm uppercase tracking-[0.4em] text-gold">Lokasi</p>
+          <p className="text-sm uppercase tracking-[0.4em] text-gold">{isEn ? 'Location' : 'Lokasi'}</p>
           <h2 className="font-display text-3xl">Pura Lempuyang Luhur, Karangasem</h2>
           <p className="mt-4 text-sm text-ebony/70 dark:text-cream/70">
-            Infrastruktur digital kami terhubung langsung dengan petugas. Begitu pembayaran berhasil, QR tiket dan panduan budaya dikirim ke email maupun dashboard.
+            {isEn
+              ? 'Our digital infrastructure connects directly to on-site staff. Once payment succeeds, your QR ticket and cultural guide are delivered to email and dashboard.'
+              : 'Infrastruktur digital kami terhubung langsung dengan petugas. Begitu pembayaran berhasil, QR tiket dan panduan budaya dikirim ke email maupun dashboard.'}
           </p>
           <ul className="mt-6 space-y-3 text-sm">
             {tips.map(({ icon: Icon, text }) => (
@@ -58,6 +70,7 @@ const MapSection = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export default MapSection;

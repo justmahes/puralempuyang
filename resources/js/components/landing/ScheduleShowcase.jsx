@@ -2,9 +2,10 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Users } from 'lucide-react';
 import { format } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { id, enUS } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useI18n } from '../../i18n/I18nContext';
 
 const availabilityBadge = (remaining, total) => {
   if (remaining <= 5) {
@@ -18,6 +19,8 @@ const availabilityBadge = (remaining, total) => {
 
 const ScheduleShowcase = ({ slots = [] }) => {
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isEn = locale === 'en';
 
   const filteredSlots = useMemo(() => {
     if (!slots?.length) return [];
@@ -27,7 +30,11 @@ const ScheduleShowcase = ({ slots = [] }) => {
 
   const preview = filteredSlots.slice(0, 6);
   const emptyMessage = user?.citizenship_type
-    ? `Belum ada slot untuk kategori ${user.citizenship_type === 'international' ? 'mancanegara' : 'domestik'}.`
+    ? isEn
+      ? `No slots for ${user.citizenship_type === 'international' ? 'international' : 'domestic'} visitors yet.`
+      : `Belum ada slot untuk kategori ${user.citizenship_type === 'international' ? 'mancanegara' : 'domestik'}.`
+    : isEn
+    ? 'No slots available right now.'
     : 'Belum ada slot tersedia saat ini.';
 
   return (
@@ -36,11 +43,17 @@ const ScheduleShowcase = ({ slots = [] }) => {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="text-sm uppercase tracking-[0.4em] text-gold">Realtime capacity</p>
-            <h2 className="font-display text-3xl">Jadwal paling diminati minggu ini</h2>
-            <p className="mt-2 text-sm text-ebony/70 dark:text-cream/70">Data selalu disinkronkan dengan operator lapangan. Pilih slot sesuai mood sunrise atau golden hour tanpa khawatir kehabisan.</p>
+            <h2 className="font-display text-3xl">
+              {isEn ? 'Most popular schedules this week' : 'Jadwal paling diminati minggu ini'}
+            </h2>
+            <p className="mt-2 text-sm text-ebony/70 dark:text-cream/70">
+              {isEn
+                ? 'Always synced with on-site operators. Pick sunrise or golden hour without worrying about quota.'
+                : 'Data selalu disinkronkan dengan operator lapangan. Pilih slot sesuai mood sunrise atau golden hour tanpa khawatir kehabisan.'}
+            </p>
           </div>
           <Link to="/booking" className="rounded-full bg-ebony px-6 py-3 text-sm font-semibold text-cream shadow-lg shadow-ebony/30 hover:-translate-y-0.5 dark:bg-gold dark:text-ebony">
-            Lihat semua slot
+            {isEn ? 'See all slots' : 'Lihat semua slot'}
           </Link>
         </div>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
@@ -59,23 +72,29 @@ const ScheduleShowcase = ({ slots = [] }) => {
                   <div className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2 text-gold">
                       <Calendar size={16} />
-                      {format(new Date(slot.visit_date), 'EEEE, d MMM', { locale: id })}
+                      {format(new Date(slot.visit_date), 'EEEE, d MMM', { locale: isEn ? enUS : id })}
                     </div>
                     <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase ${badge.style}`}>
                       {badge.label}
                     </span>
                   </div>
                   <div className="mt-4 flex items-center justify-between text-xs uppercase tracking-[0.3em]">
-                    <span className="rounded-full bg-ebony/5 px-3 py-1 text-ebony dark:bg-white/10 dark:text-white">{slot.ticket_category === 'international' ? 'Mancanegara' : 'Domestik'}</span>
+                    <span className="rounded-full bg-ebony/5 px-3 py-1 text-ebony dark:bg-white/10 dark:text-white">
+                      {slot.ticket_category === 'international'
+                        ? isEn ? 'International' : 'Mancanegara'
+                        : isEn ? 'Domestic' : 'Domestik'}
+                    </span>
                   </div>
                   <h3 className="mt-2 font-semibold text-lg">{slot.ticket_name}</h3>
-                  <p className="text-sm text-ebony/70 dark:text-cream/70">Rp {Number(slot.price).toLocaleString('id-ID')} - {slot.quota_total} kuota</p>
+                  <p className="text-sm text-ebony/70 dark:text-cream/70">
+                    Rp {Number(slot.price).toLocaleString('id-ID')} - {slot.quota_total} {isEn ? 'quota' : 'kuota'}
+                  </p>
                   <div className="mt-5 rounded-2xl bg-ebony/5 p-4 text-sm dark:bg-white/5">
                     <p className="flex items-center gap-2 text-ebony dark:text-white">
                       <Clock size={16} /> {slot.start_time.slice(0, 5)} - {slot.end_time.slice(0, 5)}
                     </p>
                     <p className="mt-2 flex items-center gap-2 text-ebony/70 dark:text-cream/70">
-                      <Users size={16} /> Sisa {slot.quota_remaining} pengunjung lagi
+                      <Users size={16} /> {isEn ? 'Remaining' : 'Sisa'} {slot.quota_remaining} {isEn ? 'visitors' : 'pengunjung'} {isEn ? '' : 'lagi'}
                     </p>
                   </div>
                 </motion.div>
@@ -91,4 +110,3 @@ const ScheduleShowcase = ({ slots = [] }) => {
 };
 
 export default ScheduleShowcase;
-

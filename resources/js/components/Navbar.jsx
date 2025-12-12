@@ -1,31 +1,34 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, Moon, Sun, UserRound, X } from 'lucide-react';
+import { Menu as HeadlessMenu } from '@headlessui/react';
+import { LayoutDashboard, LogOut, Menu as MenuIcon, Moon, Sun, UserRound, UserCog, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
+import { useI18n } from '../i18n/I18nContext';
 
 const navItems = [
-  { href: 'experience', label: 'Pengalaman' },
-  { href: 'jadwal', label: 'Jadwal' },
-  { href: 'galeri', label: 'Galeri' },
-  { href: 'testimoni', label: 'Testimoni' },
-  { href: 'lokasi', label: 'Lokasi' },
+  { href: 'experience', key: 'nav.experience' },
+  { href: 'jadwal', key: 'nav.schedule' },
+  { href: 'galeri', key: 'nav.gallery' },
+  { href: 'testimoni', key: 'nav.testimonials' },
+  { href: 'lokasi', key: 'nav.location' },
 ];
 
 const Navbar = () => {
   const { user, logout } = useAuth();
   const { isDark, toggleDark } = useDarkMode();
+  const { locale, setLanguage, t } = useI18n();
   const location = useLocation();
   const [isScrolled, setScrolled] = useState(false);
   const [isMobileOpen, setMobileOpen] = useState(false);
 
   const primaryLink = user
     ? user.role === 'admin'
-      ? { to: '/admin', label: 'Admin' }
+      ? { to: '/admin', label: t('nav.admin') }
       : user.role === 'operator'
-      ? { to: '/operator', label: 'Petugas' }
-      : { to: '/dashboard', label: 'Dashboard' }
+      ? { to: '/operator', label: t('nav.operator') }
+      : { to: '/dashboard', label: t('nav.dashboard') }
     : null;
 
   const initials = user?.name
@@ -77,25 +80,33 @@ const Navbar = () => {
         isScrolled ? 'bg-cream/80 dark:bg-ebony/80 backdrop-blur-xl shadow-lg' : 'bg-transparent'
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link to="/" className="font-display text-2xl font-semibold text-gold">
+      <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-4">
+        <Link to="/" className="font-display text-2xl font-semibold text-gold flex-none">
           Pura Lempuyang
         </Link>
 
-        <nav className="hidden items-center gap-8 text-sm font-medium md:flex">
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-4 lg:gap-6 text-sm font-medium md:flex whitespace-nowrap overflow-x-auto">
           {navItems.map((item) => (
             <Link
-              key={item.label}
+              key={item.key}
               to={`/#${item.href}`}
               onClick={() => scrollToAnchor(item.href)}
               className="text-ebony/80 transition hover:text-gold dark:text-cream/80"
             >
-              {item.label}
+              {t(item.key)}
             </Link>
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-none items-center gap-2 lg:gap-3">
+          <button
+            onClick={() => setLanguage(locale === 'id' ? 'en' : 'id')}
+            className="glass-panel flex h-10 px-3 items-center justify-center rounded-full text-xs font-semibold"
+            aria-label="Toggle language"
+            type="button"
+          >
+            {locale === 'id' ? 'EN' : 'ID'}
+          </button>
           <button
             onClick={toggleDark}
             className="glass-panel flex h-10 w-10 items-center justify-center rounded-full"
@@ -106,37 +117,65 @@ const Navbar = () => {
 
           {user ? (
             <div className="hidden items-center gap-3 md:flex">
-              <span className="text-sm font-medium">Halo {user.name.split(' ')[0]}</span>
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/profile"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cream/70 text-sm font-semibold"
+              <span className="hidden lg:inline text-sm font-medium">Halo {user.name.split(' ')[0]}</span>
+              <HeadlessMenu as="div" className="relative">
+                <HeadlessMenu.Button
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cream/70 text-sm font-semibold hover:bg-cream/40 dark:border-white/20 dark:hover:bg-white/10"
+                  aria-label="Open profile menu"
                 >
                   {initials || <UserRound size={16} />}
-                </Link>
-                {primaryLink && (
-                  <NavLink to={primaryLink.to} className={primaryLinkClasses}>
-                    {primaryLink.label}
-                  </NavLink>
-                )}
-                <button
-                  onClick={() => logout()}
-                  className="rounded-full px-4 py-2 text-sm text-ebony/70 dark:text-cream/70"
-                >
-                  Keluar
-                </button>
-              </div>
+                </HeadlessMenu.Button>
+                <HeadlessMenu.Items className="absolute right-0 mt-2 w-48 origin-top-right rounded-2xl border border-cream/60 bg-white p-2 text-sm shadow-xl focus:outline-none dark:border-white/10 dark:bg-ebony">
+                  <HeadlessMenu.Item>
+                    {({ active }) => (
+                      <NavLink
+                        to="/profile"
+                        className={`flex items-center gap-2 rounded-xl px-3 py-2 ${active ? 'bg-cream/60 dark:bg-white/10' : ''}`}
+                      >
+                        <UserCog size={16} className="text-gold" />
+                        {t('nav.profile')}
+                      </NavLink>
+                    )}
+                  </HeadlessMenu.Item>
+                  {primaryLink && (
+                    <HeadlessMenu.Item>
+                      {({ active }) => (
+                        <NavLink
+                          to={primaryLink.to}
+                          className={`flex items-center gap-2 rounded-xl px-3 py-2 ${active ? 'bg-cream/60 dark:bg-white/10' : ''}`}
+                        >
+                          <LayoutDashboard size={16} className="text-gold" />
+                          {primaryLink.label}
+                        </NavLink>
+                      )}
+                    </HeadlessMenu.Item>
+                  )}
+                  <div className="my-1 border-t border-cream/50 dark:border-white/10" />
+                  <HeadlessMenu.Item>
+                    {({ active }) => (
+                      <button
+                        type="button"
+                        onClick={() => logout()}
+                        className={`w-full text-left flex items-center gap-2 rounded-xl px-3 py-2 ${active ? 'bg-cream/60 dark:bg-white/10' : ''}`}
+                      >
+                        <LogOut size={16} className="text-gold" />
+                        {t('nav.logout')}
+                      </button>
+                    )}
+                  </HeadlessMenu.Item>
+                </HeadlessMenu.Items>
+              </HeadlessMenu>
             </div>
           ) : (
             <div className="hidden items-center gap-2 md:flex">
               <NavLink to="/login" className="text-sm font-medium text-ebony/80 dark:text-cream">
-                Masuk
+                {t('nav.login')}
               </NavLink>
               <NavLink
                 to="/register"
                 className="rounded-full bg-gold px-4 py-2 text-sm font-semibold text-ebony shadow-glow hover:scale-105"
               >
-                Daftar
+                {t('nav.register')}
               </NavLink>
             </div>
           )}
@@ -146,7 +185,7 @@ const Navbar = () => {
             onClick={() => setMobileOpen((prev) => !prev)}
             aria-label="Toggle navigation"
           >
-            {isMobileOpen ? <X size={18} /> : <Menu size={18} />}
+            {isMobileOpen ? <X size={18} /> : <MenuIcon size={18} />}
           </button>
         </div>
       </div>
@@ -163,7 +202,7 @@ const Navbar = () => {
               <div className="flex flex-col gap-4">
                 {navItems.map((item) => (
                   <Link
-                    key={item.label}
+                    key={item.key}
                     to={`/#${item.href}`}
                     onClick={() => {
                       scrollToAnchor(item.href);
@@ -171,7 +210,7 @@ const Navbar = () => {
                     }}
                     className="text-base font-semibold"
                   >
-                    {item.label}
+                    {t(item.key)}
                   </Link>
                 ))}
               </div>
@@ -183,7 +222,7 @@ const Navbar = () => {
                   onClick={closeMobile}
                   className="inline-flex items-center gap-2 rounded-2xl border border-cream/70 px-4 py-3"
                 >
-                  <UserRound size={18} /> Kelola Profil
+                  <UserRound size={18} /> {t('nav.profile')}
                 </Link>
                     {primaryLink && (
                       <NavLink
@@ -201,16 +240,16 @@ const Navbar = () => {
                       }}
                       className="rounded-2xl border border-cream/70 px-4 py-3 text-left text-sm"
                     >
-                      Keluar
+                      {t('nav.logout')}
                     </button>
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
                     <NavLink to="/login" onClick={closeMobile} className="rounded-2xl border border-cream/70 px-4 py-3 text-center">
-                      Masuk
+                      {t('nav.login')}
                     </NavLink>
                     <NavLink to="/register" onClick={closeMobile} className="rounded-2xl bg-gold px-4 py-3 text-center font-semibold text-ebony">
-                      Daftar
+                      {t('nav.register')}
                     </NavLink>
                   </div>
                 )}
