@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Hash;
 
 class InitialSeeder extends Seeder
 {
+    /** Jumlah hari ke depan yang dibuatkan slot kunjungan. */
+    private const SLOT_DAYS = 7;
+
     public function run(): void
     {
         User::query()->updateOrCreate(
@@ -51,6 +54,46 @@ class InitialSeeder extends Seeder
                 ],
             ],
             [
+                'key' => 'gate_of_heaven',
+                'name' => 'Gate of Heaven Sunrise',
+                'description' => 'Sesi ikonik di Candi Bentar saat matahari terbit, termasuk nomor antre foto prioritas',
+                'capacity' => 50,
+                'prices' => [
+                    'domestic' => 45000,
+                    'international' => 85000,
+                ],
+                'slots' => [
+                    ['start' => '05:00:00', 'end' => '06:30:00', 'quota' => 50],
+                    ['start' => '06:30:00', 'end' => '08:00:00', 'quota' => 50],
+                ],
+            ],
+            [
+                'key' => 'pilgrimage',
+                'name' => 'Lempuyang Luhur Pilgrimage',
+                'description' => 'Pendakian ke pura puncak bersama pemandu spiritual, termasuk persembahyangan',
+                'capacity' => 40,
+                'prices' => [
+                    'domestic' => 75000,
+                    'international' => 150000,
+                ],
+                'slots' => [
+                    ['start' => '06:00:00', 'end' => '12:00:00', 'quota' => 40],
+                ],
+            ],
+            [
+                'key' => 'twilight',
+                'name' => 'Twilight Blessing',
+                'description' => 'Persembahyangan senja di pelataran utama dengan panorama Gunung Agung',
+                'capacity' => 40,
+                'prices' => [
+                    'domestic' => 35000,
+                    'international' => 65000,
+                ],
+                'slots' => [
+                    ['start' => '18:00:00', 'end' => '19:30:00', 'quota' => 40],
+                ],
+            ],
+            [
                 'key' => 'golden',
                 'name' => 'Golden Hour Experience',
                 'description' => 'Sesi sore hari dengan panorama matahari terbenam',
@@ -83,21 +126,29 @@ class InitialSeeder extends Seeder
 
         // Satu sesi = satu slot dengan satu kuota bersama. Tarif domestik dipakai
         // sebagai tipe kanonik; tarif mancanegara menempel lewat experience_code.
-        $baseDate = Carbon::now()->addDay();
-        foreach ($experiences as $experience) {
-            $canonicalType = $tickets[$experience['key']]['domestic']
-                ?? reset($tickets[$experience['key']]);
+        foreach (range(1, self::SLOT_DAYS) as $dayOffset) {
+            $date = Carbon::now()->addDays($dayOffset)->toDateString();
 
-            foreach ($experience['slots'] as $slot) {
-                VisitSlot::query()->updateOrCreate([
-                    'ticket_type_id' => $canonicalType->id,
-                    'visit_date' => $baseDate->toDateString(),
-                    'start_time' => $slot['start'],
-                    'end_time' => $slot['end'],
-                ], [
-                    'quota_total' => $slot['quota'],
-                    'quota_remaining' => $slot['quota'],
-                ]);
+            foreach ($experiences as $experience) {
+                $canonicalType = $tickets[$experience['key']]['domestic']
+                    ?? reset($tickets[$experience['key']]);
+
+                foreach ($experience['slots'] as $slot) {
+                    $visitSlot = VisitSlot::query()->firstOrNew([
+                        'ticket_type_id' => $canonicalType->id,
+                        'visit_date' => $date,
+                        'start_time' => $slot['start'],
+                        'end_time' => $slot['end'],
+                    ]);
+
+                    // Kuota sisa hanya diisi saat slot baru dibuat, supaya
+                    // menjalankan seeder ulang tidak menghapus pemesanan.
+                    if (!$visitSlot->exists) {
+                        $visitSlot->quota_remaining = $slot['quota'];
+                    }
+                    $visitSlot->quota_total = $slot['quota'];
+                    $visitSlot->save();
+                }
             }
         }
 
