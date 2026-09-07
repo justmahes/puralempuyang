@@ -159,12 +159,7 @@ class OrderWorkflow
         $order->loadMissing(['items', 'slot', 'ticketType', 'user']);
         $tickets = [];
         foreach ($order->items as $item) {
-            $payload = [
-                'ticket_code' => $item->ticket_code,
-                'order_code' => $order->order_code,
-                'visit_date' => optional($order->slot?->visit_date)?->toDateString(),
-            ];
-            $path = $this->qrService->generate($item->ticket_code, $payload);
+            $path = $this->qrService->generate($item->ticket_code);
             $item->update([
                 'qr_path' => $path,
                 'status' => 'valid',

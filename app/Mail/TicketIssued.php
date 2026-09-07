@@ -8,6 +8,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class TicketIssued extends Mailable
 {
@@ -40,11 +41,19 @@ class TicketIssued extends Mailable
     {
         $attachments = [];
         foreach ($this->tickets as $ticket) {
-            if (!empty($ticket['qr_path']) && file_exists($ticket['qr_path'])) {
-                $attachments[] = Attachment::fromPath($ticket['qr_path'])
-                    ->as($ticket['ticket_code'] . '.png')
-                    ->withMime('image/png');
+            if (empty($ticket['qr_path'])) {
+                continue;
             }
+
+            // qr_path relatif terhadap disk "public"; file_exists butuh path absolut.
+            $absolute = Storage::disk('public')->path($ticket['qr_path']);
+            if (!file_exists($absolute)) {
+                continue;
+            }
+
+            $attachments[] = Attachment::fromPath($absolute)
+                ->as($ticket['ticket_code'] . '.svg')
+                ->withMime('image/svg+xml');
         }
         return $attachments;
     }
