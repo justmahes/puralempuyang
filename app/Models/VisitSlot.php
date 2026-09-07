@@ -31,4 +31,21 @@ class VisitSlot extends Model
     {
         return $query->whereDate('visit_date', '>=', now()->toDateString());
     }
+
+    /**
+     * Tarif yang dijual pada sesi ini (domestik & mancanegara). Satu sesi
+     * memakai satu kuota bersama, tarif hanya menentukan harga per orang.
+     */
+    public function tiers()
+    {
+        $experience = $this->ticketType?->experience_code;
+        if (!$experience) {
+            return collect($this->ticketType ? [$this->ticketType] : []);
+        }
+
+        return TicketType::where('experience_code', $experience)
+            ->where('is_active', true)
+            ->orderBy('price')
+            ->get();
+    }
 }

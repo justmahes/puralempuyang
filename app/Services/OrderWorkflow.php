@@ -19,13 +19,16 @@ class OrderWorkflow
     {
     }
 
-    public function create(User $user, int $slotId, int $quantity): Order
+    /**
+     * @param array<int, array{category: string, quantity: int}> $lines
+     *        Rincian pengunjung per tarif, mis. 3 WNI + 1 WNA dalam satu order.
+     */
+    public function create(User $user, int $slotId, array $lines): Order
     {
-        if (!$user->citizenship_type) {
-            throw new RuntimeException('Lengkapi jenis pengunjung Anda pada profil sebelum memesan', 422);
-        }
+        $lines = $this->normaliseLines($lines);
+        $quantity = array_sum(array_column($lines, 'quantity'));
 
-        return DB::transaction(function () use ($user, $slotId, $quantity) {
+        return DB::transaction(function () use ($user, $slotId, $lines, $quantity) {
             $slot = VisitSlot::with('ticketType')->lockForUpdate()->find($slotId);
             if (!$slot) {
                 throw new RuntimeException('Slot not found', 404);
@@ -34,11 +37,31 @@ class OrderWorkflow
                 throw new RuntimeException('Quota not available', 422);
             }
 
-            $slotCategory = $slot->ticketType?->category ?? 'domestic';
-            if ($slotCategory !== $user->citizenship_type) {
-                $targetLabel = $slotCategory === 'international' ? 'mancanegara' : 'domestik';
-                $userLabel = $user->citizenship_type === 'international' ? 'mancanegara' : 'domestik';
-                throw new RuntimeException("Slot ini khusus untuk wisatawan {$targetLabel}. Akun Anda terdaftar sebagai {$userLabel}.", 422);
+            // Tarif diambil dari sesi, bukan dari citizenship_type akun pemesan,
+            // supaya satu akun bisa memesan untuk rombongan campuran.
+            $tiers = $slot->tiers()->keyBy('category');
+            $items = [];
+            $amount = 0.0;
+
+            foreach ($lines as $line) {
+                $tier = $tiers->get($line['category']);
+                if (!$tier) {
+                    $label = $line['category'] === 'international' ? 'mancanegara' : 'domestik';
+                    throw new RuntimeException("Sesi ini tidak menjual tarif {$label}.", 422);
+                }
+
+                for ($i = 0; $i < $line['quantity']; $i++) {
+                    $items[] = [
+                        'order_id' => null,
+                        'ticket_type_id' => $tier->id,
+                        'unit_price' => $tier->price,
+                        'ticket_code' => strtoupper(Str::uuid()->toString()),
+                        'status' => 'pending',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                    $amount += $tier->price;
+                }
             }
 
             $slot->decrement('quota_remaining', $quantity);
@@ -46,27 +69,52 @@ class OrderWorkflow
             $order = Order::create([
                 'order_code' => $this->generateOrderCode(),
                 'user_id' => $user->id,
-                'ticket_type_id' => $slot->ticket_type_id,
+                'ticket_type_id' => $items[0]['ticket_type_id'],
                 'visit_slot_id' => $slot->id,
                 'quantity' => $quantity,
-                'amount' => $slot->ticketType->price * $quantity,
+                'amount' => $amount,
                 'status' => 'pending',
             ]);
 
-            $items = [];
-            for ($i = 0; $i < $quantity; $i++) {
-                $items[] = [
-                    'order_id' => $order->id,
-                    'ticket_code' => strtoupper(Str::uuid()->toString()),
-                    'status' => 'pending',
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
+            foreach ($items as $index => $item) {
+                $items[$index]['order_id'] = $order->id;
             }
             OrderItem::insert($items);
 
             return $order->load(['items', 'slot', 'ticketType', 'user']);
         });
+    }
+
+    /**
+     * Buang baris kosong, gabungkan kategori yang sama, dan pastikan
+     * setidaknya ada satu pengunjung.
+     */
+    private function normaliseLines(array $lines): array
+    {
+        $merged = [];
+        foreach ($lines as $line) {
+            $category = $line['category'] ?? null;
+            $quantity = (int) ($line['quantity'] ?? 0);
+            if (!in_array($category, ['domestic', 'international'], true) || $quantity < 1) {
+                continue;
+            }
+            $merged[$category] = ($merged[$category] ?? 0) + $quantity;
+        }
+
+        if (!$merged) {
+            throw new RuntimeException('Tentukan jumlah pengunjung terlebih dahulu', 422);
+        }
+
+        $total = array_sum($merged);
+        if ($total > 10) {
+            throw new RuntimeException('Maksimal 10 tiket per pesanan', 422);
+        }
+
+        return array_map(
+            fn ($category, $quantity) => ['category' => $category, 'quantity' => $quantity],
+            array_keys($merged),
+            $merged
+        );
     }
 
     public function attachSnap(Order $order, string $token, string $url): Order

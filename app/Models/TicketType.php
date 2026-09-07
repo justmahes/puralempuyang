@@ -11,6 +11,7 @@ class TicketType extends Model
 
     protected $fillable = [
         'name',
+        'experience_code',
         'description',
         'category',
         'capacity',

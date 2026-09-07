@@ -22,7 +22,11 @@ class PaymentController extends Controller
         $data = Validator::make($request->all(), [
             'order_code' => 'nullable|string|exists:orders,order_code',
             'slot_id' => 'required_without:order_code|integer|exists:visit_slots,id',
-            'quantity' => 'required_without:order_code|integer|min:1|max:10',
+            'lines' => 'required_without_all:order_code,quantity|array|min:1',
+            'lines.*.category' => 'required|in:domestic,international',
+            'lines.*.quantity' => 'required|integer|min:0|max:10',
+            // Bentuk lama: satu angka tanpa rincian kategori.
+            'quantity' => 'nullable|integer|min:1|max:10',
         ])->validate();
 
         $user = $request->user();
@@ -47,8 +51,15 @@ class PaymentController extends Controller
                 ]);
             }
         } else {
-            $order = $this->workflow->create($user, $data['slot_id'], $data['quantity']);
+            $lines = $data['lines'] ?? [[
+                // Tanpa rincian, seluruh tiket mengikuti kategori akun pemesan.
+                'category' => $user->citizenship_type ?: 'domestic',
+                'quantity' => (int) ($data['quantity'] ?? 0),
+            ]];
+            $order = $this->workflow->create($user, $data['slot_id'], $lines);
         }
+
+        $order->loadMissing('items.ticketType');
 
         $payload = [
             'transaction_details' => [
@@ -60,12 +71,22 @@ class PaymentController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
             ],
-            'item_details' => [[
-                'id' => $order->ticket_type_id,
-                'price' => (int) round($order->amount / max(1, $order->quantity)),
-                'quantity' => (int) $order->quantity,
-                'name' => $order->ticketType->name ?? 'Tiket Pura Lempuyang',
-            ]],
+            // Dirinci per tarif: satu order bisa memuat WNI dan WNA sekaligus,
+            // sehingga harga satuan tidak lagi bisa dibagi rata dari total.
+            'item_details' => $order->items
+                ->groupBy('ticket_type_id')
+                ->map(fn ($group) => [
+                    'id' => (string) ($group->first()->ticket_type_id ?? $order->ticket_type_id),
+                    'price' => (int) round($group->first()->unit_price),
+                    'quantity' => $group->count(),
+                    'name' => trim(sprintf(
+                        '%s (%s)',
+                        $group->first()->ticketType?->name ?? 'Tiket Pura Lempuyang',
+                        $group->first()->ticketType?->category === 'international' ? 'WNA' : 'WNI'
+                    )),
+                ])
+                ->values()
+                ->all(),
             'callbacks' => [
                 'finish' => rtrim(config('app.frontend_url'), '/') . '/dashboard?order=' . $order->order_code,
             ],

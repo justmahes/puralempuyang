@@ -11,6 +11,8 @@ class OrderItem extends Model
 
     protected $fillable = [
         'order_id',
+        'ticket_type_id',
+        'unit_price',
         'ticket_code',
         'qr_path',
         'status',
@@ -19,10 +21,16 @@ class OrderItem extends Model
 
     protected $casts = [
         'validated_at' => 'datetime',
+        'unit_price' => 'float',
     ];
 
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function ticketType()
+    {
+        return $this->belongsTo(TicketType::class);
     }
 }

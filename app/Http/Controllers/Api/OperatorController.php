@@ -18,12 +18,21 @@ class OperatorController extends Controller
                 'order_items.ticket_code',
                 'order_items.status',
                 'orders.status as order_status',
+                'orders.order_code',
+                'orders.quantity',
                 'visit_slots.visit_date',
                 'visit_slots.start_time',
                 'visit_slots.end_time',
+                'users.name as customer',
+                'users.citizenship_type',
+                'ticket_types.name as ticket_name',
+                'ticket_types.category',
+                'order_items.unit_price as price',
             ])
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->join('visit_slots', 'visit_slots.id', '=', 'orders.visit_slot_id')
+            ->join('ticket_types', 'ticket_types.id', '=', 'order_items.ticket_type_id')
+            ->join('users', 'users.id', '=', 'orders.user_id')
             ->whereDate('visit_slots.visit_date', $today)
             ->limit(2000)
             ->get();
@@ -90,12 +99,16 @@ class OperatorController extends Controller
                 'orders.status as order_status',
                 'visit_slots.visit_date',
                 'visit_slots.start_time',
+                'orders.quantity',
                 'users.name as customer',
+                'users.citizenship_type',
                 'ticket_types.name as ticket_name',
+                'ticket_types.category',
+                'order_items.unit_price as price',
             ])
             ->join('orders', 'orders.id', '=', 'order_items.order_id')
             ->join('visit_slots', 'visit_slots.id', '=', 'orders.visit_slot_id')
-            ->join('ticket_types', 'ticket_types.id', '=', 'orders.ticket_type_id')
+            ->join('ticket_types', 'ticket_types.id', '=', 'order_items.ticket_type_id')
             ->join('users', 'users.id', '=', 'orders.user_id')
             ->when($status, fn ($q) => $q->where('order_items.status', $status))
             ->orderByDesc('visit_slots.visit_date')
@@ -125,15 +138,23 @@ class OperatorController extends Controller
             'ticket_code' => 'required|string|exists:order_items,ticket_code',
         ])->validate();
 
-        $item = OrderItem::with(['order' => fn ($q) => $q->with('slot')])
+        $item = OrderItem::with(['ticketType', 'order' => fn ($q) => $q->with(['slot', 'user', 'ticketType'])])
             ->where('ticket_code', $data['ticket_code'])
             ->firstOrFail();
 
         if ($item->status === 'used') {
-            return response()->json(['message' => 'Tiket Sudah Dipakai', 'ticket' => $item], 409);
+            return response()->json([
+                'message' => 'Tiket Sudah Dipakai',
+                'ticket' => $item,
+                'verification' => $this->verificationPayload($item),
+            ], 409);
         }
         if (!in_array($item->order->status, ['paid', 'used'], true)) {
-            return response()->json(['message' => 'Payment not settled', 'ticket' => $item], 422);
+            return response()->json([
+                'message' => 'Payment not settled',
+                'ticket' => $item,
+                'verification' => $this->verificationPayload($item),
+            ], 422);
         }
 
         $item->update([
@@ -141,6 +162,42 @@ class OperatorController extends Controller
             'validated_at' => now(),
         ]);
 
-        return response()->json(['message' => 'Ticket validated', 'ticket' => $item->fresh()]);
+        return response()->json([
+            'message' => 'Ticket validated',
+            'ticket' => $item->fresh(),
+            'verification' => $this->verificationPayload($item),
+        ]);
+    }
+
+    /**
+     * Data identitas yang perlu dilihat petugas gerbang saat QR dipindai.
+     * Tiket kategori domestik dijual lebih murah, jadi petugas harus
+     * mencocokkan identitas pengunjung sebelum meloloskan.
+     */
+    private function verificationPayload(OrderItem $item): array
+    {
+        $order = $item->order;
+        // Kategori melekat pada tiket, bukan pada order: satu order bisa
+        // memuat rombongan campuran WNI dan WNA.
+        $category = $item->ticketType?->category ?? $order?->ticketType?->category ?? 'domestic';
+        $isDomestic = $category === 'domestic';
+
+        return [
+            'ticket_code' => $item->ticket_code,
+            'order_code' => $order?->order_code,
+            'visitor_name' => $order?->user?->name,
+            'citizenship_type' => $order?->user?->citizenship_type,
+            'category' => $category,
+            'category_label' => $isDomestic ? 'Domestik (WNI)' : 'Mancanegara (WNA)',
+            'ticket_name' => $item->ticketType?->name ?? $order?->ticketType?->name,
+            'price' => $item->unit_price ?: $item->ticketType?->price,
+            'quantity' => $order?->quantity,
+            'visit_date' => optional($order?->slot?->visit_date)?->toDateString(),
+            'start_time' => $order?->slot?->start_time,
+            'requires_id_check' => $isDomestic,
+            'id_check_hint' => $isDomestic
+                ? 'Tarif domestik. Cocokkan KTP/identitas WNI sebelum meloloskan pengunjung.'
+                : 'Tarif mancanegara. Tidak ada selisih harga yang perlu diperiksa.',
+        ];
     }
 }

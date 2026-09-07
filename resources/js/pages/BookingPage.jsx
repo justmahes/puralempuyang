@@ -22,11 +22,8 @@ const BookingPage = () => {
   const queryClient = useQueryClient();
   const { isReady, openSnap } = useMidtransSnap();
 
-  const userCategoryLabel = user?.citizenship_type === 'international' ? 'Mancanegara' : 'Domestik';
-  const activePriceInfo = user?.citizenship_type ? PRICE_RANGE[user.citizenship_type] : null;
-  const categoryPillLabel = user?.citizenship_type
-    ? [userCategoryLabel, activePriceInfo?.label].filter(Boolean).join(' - ')
-    : 'Semua kategori pengunjung';
+  // Setiap sesi melayani kedua tarif; harga ditentukan per pengunjung.
+  const categoryPillLabel = `Domestik ${PRICE_RANGE.domestic.label} - Mancanegara ${PRICE_RANGE.international.label}`;
 
   const { data: slots } = useQuery({
     queryKey: ['slots'],
@@ -37,15 +34,38 @@ const BookingPage = () => {
   });
 
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [quantity, setQuantity] = useState(1);
+  // Jumlah pengunjung per tarif — satu pesanan boleh memuat WNI dan WNA sekaligus.
+  const [counts, setCounts] = useState({ domestic: 0, international: 0 });
 
-  const filteredSlots = useMemo(() => {
-    if (!slots?.length) return [];
-    if (!user?.citizenship_type) return slots;
-    return slots.filter((slot) => slot.ticket_category === user.citizenship_type);
-  }, [slots, user?.citizenship_type]);
+  // Satu sesi kini menjual kedua tarif, jadi tidak ada lagi penyaringan slot.
+  const displaySlots = slots || [];
 
-  const displaySlots = filteredSlots;
+  // Sesi lama (sebelum tarif dipisah) belum punya `tiers`; pakai harganya sendiri.
+  const tiers = useMemo(() => {
+    if (!selectedSlot) return [];
+    if (selectedSlot.tiers?.length) return selectedSlot.tiers;
+    return [{
+      category: selectedSlot.ticket_category || 'domestic',
+      label: selectedSlot.ticket_category === 'international' ? 'Mancanegara (WNA)' : 'Domestik (WNI)',
+      price: selectedSlot.price ?? PRICE_RANGE[selectedSlot.ticket_category]?.base ?? 0,
+    }];
+  }, [selectedSlot]);
+
+  const totalGuests = (counts.domestic || 0) + (counts.international || 0);
+  const totalPrice = tiers.reduce(
+    (sum, tier) => sum + (counts[tier.category] || 0) * Number(tier.price || 0),
+    0
+  );
+
+  // Isi awal mengikuti kategori akun, tapi tetap bisa diubah untuk rombongan.
+  useEffect(() => {
+    if (!selectedSlot) return;
+    setCounts((prev) => {
+      if ((prev.domestic || 0) + (prev.international || 0) > 0) return prev;
+      const preferred = user?.citizenship_type === 'international' ? 'international' : 'domestic';
+      return { domestic: 0, international: 0, [preferred]: 1 };
+    });
+  }, [selectedSlot, user?.citizenship_type]);
 
   useEffect(() => {
     if (selectedSlot && !displaySlots.some((slot) => slot.id === selectedSlot.id)) {
@@ -63,20 +83,21 @@ const BookingPage = () => {
       toast.error(t('booking.selectSchedule'));
       return;
     }
-    if (!user?.citizenship_type) {
-      toast.error(t('booking.fillVisitorType'));
-      navigate('/profile');
+    if (totalGuests < 1) {
+      toast.error('Tentukan jumlah pengunjung terlebih dahulu');
       return;
     }
-    if (selectedSlot.ticket_category && selectedSlot.ticket_category !== user.citizenship_type) {
-      toast.error(t('booking.slotMismatch'));
+    if (totalGuests > selectedSlot.quota_remaining) {
+      toast.error('Kuota sesi ini tidak mencukupi');
       return;
     }
 
     try {
       const { data } = await api.post(endpoints.paymentToken, {
         slot_id: selectedSlot.id,
-        quantity,
+        lines: tiers
+          .map((tier) => ({ category: tier.category, quantity: counts[tier.category] || 0 }))
+          .filter((line) => line.quantity > 0),
       });
 
       toast.success('Memproses pembayaran...');
@@ -142,21 +163,26 @@ const BookingPage = () => {
                   : 'border-cream/80 bg-white hover:border-gold/40 hover:shadow-sm dark:bg-charcoal'
               }`}
             >
-              <div className="flex items-center justify-between text-xs">
-                <span className="rounded-full bg-ebony/5 px-3 py-1 text-ebony dark:bg-white/10 dark:text-white">
-                  {slot.ticket_category === 'international' ? 'Mancanegara' : 'Domestik'}
-                </span>
-              </div>
-              <p className="mt-2 text-sm text-gold">{slot.ticket_name}</p>
+              <p className="text-sm text-gold">{slot.ticket_name}</p>
               <p className="mt-2 text-xl font-semibold">
                 {slot.start_time.slice(0, 5)} - {slot.end_time.slice(0, 5)}
               </p>
               <p className="mt-2 text-sm text-ebony/70 dark:text-cream/70">
                 {t('booking.remainingQuota', { remaining: slot.quota_remaining, total: slot.quota_total })}
               </p>
-              <p className="mt-3 font-semibold">
-                Rp {Number(slot.price).toLocaleString('id-ID')}
-              </p>
+              <div className="mt-3 space-y-1 text-sm">
+                {(slot.tiers?.length
+                  ? slot.tiers
+                  : [{ category: slot.ticket_category, label: null, price: slot.price }]
+                ).map((tier) => (
+                  <div key={tier.category} className="flex items-center justify-between">
+                    <span className="text-xs text-ebony/60 dark:text-cream/60">
+                      {tier.category === 'international' ? 'Mancanegara' : 'Domestik'}
+                    </span>
+                    <span className="font-semibold">Rp {Number(tier.price).toLocaleString('id-ID')}</span>
+                  </div>
+                ))}
+              </div>
             </motion.button>
           ))
         ) : (
@@ -185,24 +211,54 @@ const BookingPage = () => {
             </p>
           </div>
 
-          {/* Jumlah Orang */}
+          {/* Jumlah Orang per Tarif */}
           <div>
             <p className="text-[11px] uppercase text-ebony/60 dark:text-cream/60 mb-2">{t('booking.people')}</p>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="h-8 w-8 rounded-full border border-cream/70 text-lg leading-none hover:bg-cream/40 dark:border-white/20"
-              >
-                −
-              </button>
-              <span className="text-lg font-semibold">{quantity}</span>
-              <button
-                onClick={() => setQuantity((q) => Math.min(10, q + 1))}
-                className="h-8 w-8 rounded-full border border-cream/70 text-lg leading-none hover:bg-cream/40 dark:border-white/20"
-              >
-                +
-              </button>
-            </div>
+            {selectedSlot ? (
+              <div className="space-y-3">
+                {tiers.map((tier) => (
+                  <div key={tier.category} className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {tier.label || (tier.category === 'international' ? 'Mancanegara (WNA)' : 'Domestik (WNI)')}
+                      </p>
+                      <p className="text-xs text-ebony/60 dark:text-cream/60">
+                        Rp {Number(tier.price).toLocaleString('id-ID')} / orang
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <button
+                        type="button"
+                        aria-label={`Kurangi ${tier.category}`}
+                        onClick={() =>
+                          setCounts((c) => ({ ...c, [tier.category]: Math.max(0, (c[tier.category] || 0) - 1) }))
+                        }
+                        className="h-8 w-8 rounded-full border border-cream/70 text-lg leading-none hover:bg-cream/40 dark:border-white/20"
+                      >
+                        −
+                      </button>
+                      <span className="w-5 text-center text-lg font-semibold">{counts[tier.category] || 0}</span>
+                      <button
+                        type="button"
+                        aria-label={`Tambah ${tier.category}`}
+                        disabled={totalGuests >= Math.min(10, selectedSlot.quota_remaining)}
+                        onClick={() =>
+                          setCounts((c) => ({ ...c, [tier.category]: (c[tier.category] || 0) + 1 }))
+                        }
+                        className="h-8 w-8 rounded-full border border-cream/70 text-lg leading-none hover:bg-cream/40 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/20"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <p className="text-xs text-ebony/60 dark:text-cream/60">
+                  Rombongan campuran WNI dan WNA bisa dipesan sekaligus. Maksimal 10 tiket per pesanan.
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-ebony/40">Pilih sesi terlebih dahulu</p>
+            )}
           </div>
 
           {/* Total Pembayaran */}
@@ -210,17 +266,17 @@ const BookingPage = () => {
             <div className="flex justify-between items-center">
               <p className="text-sm font-medium">{t('booking.total')}</p>
               <span className="text-lg font-semibold text-gold">
-                {selectedSlot
-                  ? `Rp ${(quantity * (selectedSlot.price ?? PRICE_RANGE[selectedSlot.ticket_category]?.base ?? 0)).toLocaleString('id-ID')}`
-                  : '-'}
+                {selectedSlot && totalGuests ? `Rp ${totalPrice.toLocaleString('id-ID')}` : '-'}
               </span>
             </div>
             <p className="mt-1 text-xs text-ebony/60 dark:text-cream/60">
-              {selectedSlot
-                ? `Rentang tarif ${PRICE_RANGE[selectedSlot.ticket_category]?.label}`
-                : activePriceInfo
-                ? `Rentang tarif ${activePriceInfo.label}`
-                : 'Rentang tarif Rp 30.000,00'}
+              {totalGuests
+                ? `${totalGuests} pengunjung${
+                    counts.domestic && counts.international
+                      ? ` (${counts.domestic} WNI + ${counts.international} WNA)`
+                      : ''
+                  }`
+                : 'Belum ada pengunjung dipilih'}
             </p>
           </div>
         </div>

@@ -30,6 +30,13 @@ class TicketController extends Controller
                     'description' => $slot->ticketType->description,
                     'price' => $slot->ticketType->price,
                     'ticket_category' => $slot->ticketType->category,
+                    // Satu sesi menjual kedua tarif; kuota di atas dipakai bersama.
+                    'tiers' => $slot->tiers()->map(fn ($tier) => [
+                        'ticket_type_id' => $tier->id,
+                        'category' => $tier->category,
+                        'label' => $tier->category === 'international' ? 'Mancanegara (WNA)' : 'Domestik (WNI)',
+                        'price' => $tier->price,
+                    ])->values(),
                 ];
             });
 

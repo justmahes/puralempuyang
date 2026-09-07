@@ -66,6 +66,16 @@ export async function getSnapshot() {
   });
 }
 
+export async function getSnapshotTicket(ticket_code) {
+  const db = await openDb();
+  return new Promise((resolve) => {
+    const t = db.transaction('snapshotTickets', 'readonly');
+    const s = t.objectStore('snapshotTickets');
+    s.get(ticket_code).onsuccess = (e) => resolve(e.target.result || null);
+    t.onerror = () => resolve(null);
+  });
+}
+
 export async function queueValidation(ticket_code, validated_at_client = new Date().toISOString()) {
   return tx('pendingValidations', 'readwrite', (s) => s.put({ ticket_code, validated_at_client }));
 }

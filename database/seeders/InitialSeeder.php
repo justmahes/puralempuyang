@@ -72,6 +72,7 @@ class InitialSeeder extends Seeder
                     'name' => $experience['name'],
                     'category' => $category,
                 ], [
+                    'experience_code' => $experience['key'],
                     'description' => $experience['description'],
                     'price' => $price,
                     'capacity' => $experience['capacity'],
@@ -80,21 +81,23 @@ class InitialSeeder extends Seeder
             }
         }
 
+        // Satu sesi = satu slot dengan satu kuota bersama. Tarif domestik dipakai
+        // sebagai tipe kanonik; tarif mancanegara menempel lewat experience_code.
         $baseDate = Carbon::now()->addDay();
         foreach ($experiences as $experience) {
+            $canonicalType = $tickets[$experience['key']]['domestic']
+                ?? reset($tickets[$experience['key']]);
+
             foreach ($experience['slots'] as $slot) {
-                foreach ($experience['prices'] as $category => $_) {
-                    $ticketType = $tickets[$experience['key']][$category];
-                    VisitSlot::query()->updateOrCreate([
-                        'ticket_type_id' => $ticketType->id,
-                        'visit_date' => $baseDate->toDateString(),
-                        'start_time' => $slot['start'],
-                        'end_time' => $slot['end'],
-                    ], [
-                        'quota_total' => $slot['quota'],
-                        'quota_remaining' => $slot['quota'],
-                    ]);
-                }
+                VisitSlot::query()->updateOrCreate([
+                    'ticket_type_id' => $canonicalType->id,
+                    'visit_date' => $baseDate->toDateString(),
+                    'start_time' => $slot['start'],
+                    'end_time' => $slot['end'],
+                ], [
+                    'quota_total' => $slot['quota'],
+                    'quota_remaining' => $slot['quota'],
+                ]);
             }
         }
 
