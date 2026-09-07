@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, Users } from 'lucide-react';
 import { format } from 'date-fns';
@@ -22,20 +21,19 @@ const ScheduleShowcase = ({ slots = [] }) => {
   const { locale } = useI18n();
   const isEn = locale === 'en';
 
-  const filteredSlots = useMemo(() => {
-    if (!slots?.length) return [];
-    if (!user?.citizenship_type) return slots;
-    return slots.filter((slot) => slot.ticket_category === user.citizenship_type);
-  }, [slots, user?.citizenship_type]);
+  // Satu sesi melayani kedua tarif, jadi tidak ada lagi penyaringan per kategori.
+  // Yang ditampilkan adalah tarif yang berlaku untuk pengunjung ini.
+  const viewerCategory = user?.citizenship_type || 'domestic';
 
-  const preview = filteredSlots.slice(0, 6);
-  const emptyMessage = user?.citizenship_type
-    ? isEn
-      ? `No slots for ${user.citizenship_type === 'international' ? 'international' : 'domestic'} visitors yet.`
-      : `Belum ada slot untuk kategori ${user.citizenship_type === 'international' ? 'mancanegara' : 'domestik'}.`
-    : isEn
+  const preview = (slots || []).slice(0, 6);
+  const emptyMessage = isEn
     ? 'No slots available right now.'
     : 'Belum ada slot tersedia saat ini.';
+
+  const priceFor = (slot) => {
+    const tier = slot.tiers?.find((t) => t.category === viewerCategory);
+    return Number(tier?.price ?? slot.price ?? 0);
+  };
 
   return (
     <section id="jadwal" className="section-padding scroll-mt-28 bg-gradient-to-b from-white via-cream to-white dark:from-charcoal dark:via-ebony dark:to-charcoal">
@@ -80,14 +78,14 @@ const ScheduleShowcase = ({ slots = [] }) => {
                   </div>
                   <div className="mt-4 flex items-center justify-between text-xs uppercase tracking-[0.3em]">
                     <span className="rounded-full bg-ebony/5 px-3 py-1 text-ebony dark:bg-white/10 dark:text-white">
-                      {slot.ticket_category === 'international'
+                      {viewerCategory === 'international'
                         ? isEn ? 'International' : 'Mancanegara'
                         : isEn ? 'Domestic' : 'Domestik'}
                     </span>
                   </div>
                   <h3 className="mt-2 font-semibold text-lg">{slot.ticket_name}</h3>
                   <p className="text-sm text-ebony/70 dark:text-cream/70">
-                    Rp {Number(slot.price).toLocaleString('id-ID')} - {slot.quota_total} {isEn ? 'quota' : 'kuota'}
+                    Rp {priceFor(slot).toLocaleString('id-ID')} - {slot.quota_total} {isEn ? 'quota' : 'kuota'}
                   </p>
                   <div className="mt-5 rounded-2xl bg-ebony/5 p-4 text-sm dark:bg-white/5">
                     <p className="flex items-center gap-2 text-ebony dark:text-white">

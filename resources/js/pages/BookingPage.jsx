@@ -22,8 +22,11 @@ const BookingPage = () => {
   const queryClient = useQueryClient();
   const { isReady, openSnap } = useMidtransSnap();
 
-  // Setiap sesi melayani kedua tarif; harga ditentukan per pengunjung.
-  const categoryPillLabel = `Domestik ${PRICE_RANGE.domestic.label} - Mancanegara ${PRICE_RANGE.international.label}`;
+  const categoryPillLabel = user?.citizenship_type
+    ? `${user.citizenship_type === 'international' ? 'Mancanegara' : 'Domestik'} - ${
+        PRICE_RANGE[user.citizenship_type]?.label ?? ''
+      }`
+    : 'Semua kategori pengunjung';
 
   const { data: slots } = useQuery({
     queryKey: ['slots'],
@@ -51,21 +54,26 @@ const BookingPage = () => {
     }];
   }, [selectedSlot]);
 
+  // Tarif yang berlaku untuk akun ini ditampilkan lebih dulu; tarif lain
+  // disembunyikan sampai pemesan memang butuh (rombongan campuran).
+  const viewerCategory = user?.citizenship_type === 'international' ? 'international' : 'domestic';
+  const primaryTier = tiers.find((tier) => tier.category === viewerCategory) || tiers[0];
+  const otherTiers = tiers.filter((tier) => tier.category !== primaryTier?.category);
+  const [showOtherTiers, setShowOtherTiers] = useState(false);
+  const visibleTiers = showOtherTiers ? tiers : (primaryTier ? [primaryTier] : []);
+
   const totalGuests = (counts.domestic || 0) + (counts.international || 0);
   const totalPrice = tiers.reduce(
     (sum, tier) => sum + (counts[tier.category] || 0) * Number(tier.price || 0),
     0
   );
 
-  // Isi awal mengikuti kategori akun, tapi tetap bisa diubah untuk rombongan.
+  // Setiap ganti sesi, mulai bersih: satu tiket sesuai kategori akun, dan
+  // tarif tambahan tertutup lagi supaya tidak ada tiket terpesan tanpa terlihat.
   useEffect(() => {
-    if (!selectedSlot) return;
-    setCounts((prev) => {
-      if ((prev.domestic || 0) + (prev.international || 0) > 0) return prev;
-      const preferred = user?.citizenship_type === 'international' ? 'international' : 'domestic';
-      return { domestic: 0, international: 0, [preferred]: 1 };
-    });
-  }, [selectedSlot, user?.citizenship_type]);
+    setShowOtherTiers(false);
+    setCounts(selectedSlot ? { domestic: 0, international: 0, [viewerCategory]: 1 } : { domestic: 0, international: 0 });
+  }, [selectedSlot?.id, viewerCategory]);
 
   useEffect(() => {
     if (selectedSlot && !displaySlots.some((slot) => slot.id === selectedSlot.id)) {
@@ -170,19 +178,11 @@ const BookingPage = () => {
               <p className="mt-2 text-sm text-ebony/70 dark:text-cream/70">
                 {t('booking.remainingQuota', { remaining: slot.quota_remaining, total: slot.quota_total })}
               </p>
-              <div className="mt-3 space-y-1 text-sm">
-                {(slot.tiers?.length
-                  ? slot.tiers
-                  : [{ category: slot.ticket_category, label: null, price: slot.price }]
-                ).map((tier) => (
-                  <div key={tier.category} className="flex items-center justify-between">
-                    <span className="text-xs text-ebony/60 dark:text-cream/60">
-                      {tier.category === 'international' ? 'Mancanegara' : 'Domestik'}
-                    </span>
-                    <span className="font-semibold">Rp {Number(tier.price).toLocaleString('id-ID')}</span>
-                  </div>
-                ))}
-              </div>
+              <p className="mt-3 font-semibold">
+                Rp {Number(
+                  slot.tiers?.find((tier) => tier.category === viewerCategory)?.price ?? slot.price ?? 0
+                ).toLocaleString('id-ID')}
+              </p>
             </motion.button>
           ))
         ) : (
@@ -216,7 +216,7 @@ const BookingPage = () => {
             <p className="text-[11px] uppercase text-ebony/60 dark:text-cream/60 mb-2">{t('booking.people')}</p>
             {selectedSlot ? (
               <div className="space-y-3">
-                {tiers.map((tier) => (
+                {visibleTiers.map((tier) => (
                   <div key={tier.category} className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold">
@@ -252,8 +252,19 @@ const BookingPage = () => {
                     </div>
                   </div>
                 ))}
+                {otherTiers.length > 0 && !showOtherTiers && (
+                  <button
+                    type="button"
+                    onClick={() => setShowOtherTiers(true)}
+                    className="text-xs font-semibold text-gold underline-offset-2 hover:underline"
+                  >
+                    {viewerCategory === 'international'
+                      ? 'Ada pengunjung domestik dalam rombongan?'
+                      : 'Ada tamu mancanegara dalam rombongan?'}
+                  </button>
+                )}
                 <p className="text-xs text-ebony/60 dark:text-cream/60">
-                  Rombongan campuran WNI dan WNA bisa dipesan sekaligus. Maksimal 10 tiket per pesanan.
+                  Maksimal 10 tiket per pesanan.
                 </p>
               </div>
             ) : (
