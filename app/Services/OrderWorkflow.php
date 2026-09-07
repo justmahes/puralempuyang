@@ -10,8 +10,10 @@ use App\Models\User;
 use App\Models\VisitSlot;
 use Illuminate\Contracts\Mail\Mailer;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use RuntimeException;
+use Throwable;
 
 class OrderWorkflow
 {
@@ -167,10 +169,20 @@ class OrderWorkflow
             $tickets[] = $item->toArray();
         }
 
+        // Email hanya pemberitahuan; tiket sudah sah begitu QR terbit. Gangguan
+        // SMTP tidak boleh menggagalkan penerbitan yang pembayarannya sudah lunas.
         if ($order->user) {
-            $this->mailer->to($order->user->email)->send(
-                new TicketIssued($order->user->toArray(), $this->orderPayload($order), $tickets)
-            );
+            try {
+                $this->mailer->to($order->user->email)->send(
+                    new TicketIssued($order->user->toArray(), $this->orderPayload($order), $tickets)
+                );
+            } catch (Throwable $e) {
+                Log::warning('Gagal mengirim email tiket', [
+                    'order_code' => $order->order_code,
+                    'email' => $order->user->email,
+                    'message' => $e->getMessage(),
+                ]);
+            }
         }
 
         return $tickets;
