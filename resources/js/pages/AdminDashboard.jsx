@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import api, { endpoints } from '../services/api';
 import MetricCard from '../components/dashboard/MetricCard';
 import TrendChart from '../components/dashboard/TrendChart';
+import { formatCurrency } from '../utils/format';
 import { Banknote, BarChart3, CalendarCog, Trash2, UsersRound } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -304,7 +305,8 @@ const AdminDashboard = () => {
     }
   };
 
-  const formatCurrency = (value) => `Rp ${Number(value || 0).toLocaleString('id-ID')}`;
+  // Panel admin & operator memang berbahasa Indonesia, jadi tetap memakai
+  // penulisan 'Rp' (nilai bawaan helper).
   const formatDate = (value) => {
     if (!value) return '-';
     const dt = new Date(value);

@@ -9,24 +9,27 @@ import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import { useMidtransSnap } from '../hooks/useMidtransSnap';
 import { useI18n } from '../i18n/I18nContext';
+import { formatCurrency } from '../utils/format';
 
+// Hanya tarif dasar untuk cadangan bila slot belum membawa rincian tarif.
+// Penulisan mata uangnya diserahkan ke formatCurrency agar ikut bahasa aktif.
 const PRICE_RANGE = {
-  domestic: { label: 'Rp 30.000,00', base: 30000 },
-  international: { label: 'Rp 55.000,00', base: 55000 },
+  domestic: { base: 30000 },
+  international: { base: 55000 },
 };
 
 const BookingPage = () => {
   const { user } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isReady, openSnap } = useMidtransSnap();
 
   const categoryPillLabel = user?.citizenship_type
-    ? `${user.citizenship_type === 'international' ? 'Mancanegara' : 'Domestik'} - ${
-        PRICE_RANGE[user.citizenship_type]?.label ?? ''
+    ? `${t(user.citizenship_type === 'international' ? 'common.international' : 'common.domestic')} - ${
+        formatCurrency(PRICE_RANGE[user.citizenship_type]?.base ?? 0, locale)
       }`
-    : 'Semua kategori pengunjung';
+    : t('booking.allCategories');
 
   const { data: slots } = useQuery({
     queryKey: ['slots'],
@@ -143,7 +146,7 @@ const BookingPage = () => {
         navigate('/login');
         return;
       }
-      toast.error(error.response?.data?.message || 'Gagal memulai pembayaran.');
+      toast.error(error.response?.data?.message || t('booking.payFailed'));
     }
   };
 
@@ -179,9 +182,10 @@ const BookingPage = () => {
                 {t('booking.remainingQuota', { remaining: slot.quota_remaining, total: slot.quota_total })}
               </p>
               <p className="mt-3 font-semibold">
-                Rp {Number(
-                  slot.tiers?.find((tier) => tier.category === viewerCategory)?.price ?? slot.price ?? 0
-                ).toLocaleString('id-ID')}
+                {formatCurrency(
+                  slot.tiers?.find((tier) => tier.category === viewerCategory)?.price ?? slot.price ?? 0,
+                  locale
+                )}
               </p>
             </motion.button>
           ))
@@ -206,7 +210,7 @@ const BookingPage = () => {
             <p className="text-[11px] uppercase text-ebony/60 dark:text-cream/60 mb-1">{t('booking.slot')}</p>
             <p className="text-base font-semibold">
               {selectedSlot ? selectedSlot.ticket_name : (
-                <span className="text-ebony/40">Belum dipilih</span>
+                <span className="text-ebony/40">{t('booking.notSelected')}</span>
               )}
             </p>
           </div>
@@ -220,16 +224,18 @@ const BookingPage = () => {
                   <div key={tier.category} className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold">
-                        {tier.label || (tier.category === 'international' ? 'Mancanegara (WNA)' : 'Domestik (WNI)')}
+                        {tier.category === 'international' || tier.category === 'domestic'
+                          ? t(tier.category === 'international' ? 'booking.internationalTier' : 'booking.domesticTier')
+                          : tier.label}
                       </p>
                       <p className="text-xs text-ebony/60 dark:text-cream/60">
-                        Rp {Number(tier.price).toLocaleString('id-ID')} / orang
+                        {formatCurrency(tier.price, locale)} {t('ticket.perPerson')}
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
                       <button
                         type="button"
-                        aria-label={`Kurangi ${tier.category}`}
+                        aria-label={`${t('booking.decrease')} ${tier.category}`}
                         onClick={() =>
                           setCounts((c) => ({ ...c, [tier.category]: Math.max(0, (c[tier.category] || 0) - 1) }))
                         }
@@ -240,7 +246,7 @@ const BookingPage = () => {
                       <span className="w-5 text-center text-lg font-semibold">{counts[tier.category] || 0}</span>
                       <button
                         type="button"
-                        aria-label={`Tambah ${tier.category}`}
+                        aria-label={`${t('booking.increase')} ${tier.category}`}
                         disabled={totalGuests >= Math.min(10, selectedSlot.quota_remaining)}
                         onClick={() =>
                           setCounts((c) => ({ ...c, [tier.category]: (c[tier.category] || 0) + 1 }))
@@ -259,16 +265,16 @@ const BookingPage = () => {
                     className="text-xs font-semibold text-gold underline-offset-2 hover:underline"
                   >
                     {viewerCategory === 'international'
-                      ? 'Ada pengunjung domestik dalam rombongan?'
-                      : 'Ada tamu mancanegara dalam rombongan?'}
+                      ? t('booking.askDomestic')
+                      : t('booking.askInternational')}
                   </button>
                 )}
                 <p className="text-xs text-ebony/60 dark:text-cream/60">
-                  Maksimal 10 tiket per pesanan.
+                  {t('booking.maxTickets')}
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-ebony/40">Pilih sesi terlebih dahulu</p>
+              <p className="text-sm text-ebony/40">{t('booking.selectSessionFirst')}</p>
             )}
           </div>
 
@@ -277,17 +283,17 @@ const BookingPage = () => {
             <div className="flex justify-between items-center">
               <p className="text-sm font-medium">{t('booking.total')}</p>
               <span className="text-lg font-semibold text-gold">
-                {selectedSlot && totalGuests ? `Rp ${totalPrice.toLocaleString('id-ID')}` : '-'}
+                {selectedSlot && totalGuests ? formatCurrency(totalPrice, locale) : '-'}
               </span>
             </div>
             <p className="mt-1 text-xs text-ebony/60 dark:text-cream/60">
               {totalGuests
-                ? `${totalGuests} pengunjung${
+                ? `${totalGuests} ${t(totalGuests === 1 ? 'booking.guestOne' : 'booking.guests')}${
                     counts.domestic && counts.international
                       ? ` (${counts.domestic} WNI + ${counts.international} WNA)`
                       : ''
                   }`
-                : 'Belum ada pengunjung dipilih'}
+                : t('booking.noGuests')}
             </p>
           </div>
         </div>

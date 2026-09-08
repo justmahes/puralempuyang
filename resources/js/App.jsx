@@ -11,9 +11,21 @@ import ProfilePage from './pages/ProfilePage';
 import PhotoQueuePage from './pages/PhotoQueuePage';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
+import { useI18n } from './i18n/I18nContext';
 
 const AppRoutes = () => {
   const location = useLocation();
+  const { user } = useAuth();
+  const { applyLocaleForVisitor } = useI18n();
+
+  // Pengunjung mancanegara langsung mendapat antarmuka bahasa Inggris begitu
+  // profilnya termuat. Diabaikan bila pengunjung sudah memilih bahasa sendiri.
+  useEffect(() => {
+    if (user?.citizenship_type) {
+      applyLocaleForVisitor(user.citizenship_type);
+    }
+  }, [user?.citizenship_type, applyLocaleForVisitor]);
 
   useEffect(() => {
     if (location.hash) {

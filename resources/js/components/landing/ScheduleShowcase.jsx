@@ -5,20 +5,21 @@ import { id, enUS } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useI18n } from '../../i18n/I18nContext';
+import { formatCurrency } from '../../utils/format';
 
-const availabilityBadge = (remaining, total) => {
+const availabilityBadge = (remaining, t) => {
   if (remaining <= 5) {
-    return { label: 'Tersisa sangat sedikit', style: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-100' };
+    return { label: t('schedule.quotaCritical'), style: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-100' };
   }
   if (remaining <= 15) {
-    return { label: 'Kuota menipis', style: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-100' };
+    return { label: t('schedule.quotaLow'), style: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-100' };
   }
-  return { label: 'Kuota aman', style: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-100' };
+  return { label: t('schedule.quotaSafe'), style: 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-100' };
 };
 
 const ScheduleShowcase = ({ slots = [] }) => {
   const { user } = useAuth();
-  const { locale } = useI18n();
+  const { locale, t } = useI18n();
   const isEn = locale === 'en';
 
   // Satu sesi melayani kedua tarif, jadi tidak ada lagi penyaringan per kategori.
@@ -31,7 +32,7 @@ const ScheduleShowcase = ({ slots = [] }) => {
     : 'Belum ada slot tersedia saat ini.';
 
   const priceFor = (slot) => {
-    const tier = slot.tiers?.find((t) => t.category === viewerCategory);
+    const tier = slot.tiers?.find((entry) => entry.category === viewerCategory);
     return Number(tier?.price ?? slot.price ?? 0);
   };
 
@@ -57,7 +58,7 @@ const ScheduleShowcase = ({ slots = [] }) => {
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {preview.length ? (
             preview.map((slot, idx) => {
-              const badge = availabilityBadge(slot.quota_remaining, slot.quota_total);
+              const badge = availabilityBadge(slot.quota_remaining, t);
               return (
                 <motion.div
                   key={slot.id}
@@ -85,14 +86,14 @@ const ScheduleShowcase = ({ slots = [] }) => {
                   </div>
                   <h3 className="mt-2 font-semibold text-lg">{slot.ticket_name}</h3>
                   <p className="text-sm text-ebony/70 dark:text-cream/70">
-                    Rp {priceFor(slot).toLocaleString('id-ID')} - {slot.quota_total} {isEn ? 'quota' : 'kuota'}
+                    {formatCurrency(priceFor(slot), locale)} - {slot.quota_total} {t('schedule.quota')}
                   </p>
                   <div className="mt-5 rounded-2xl bg-ebony/5 p-4 text-sm dark:bg-white/5">
                     <p className="flex items-center gap-2 text-ebony dark:text-white">
                       <Clock size={16} /> {slot.start_time.slice(0, 5)} - {slot.end_time.slice(0, 5)}
                     </p>
                     <p className="mt-2 flex items-center gap-2 text-ebony/70 dark:text-cream/70">
-                      <Users size={16} /> {isEn ? 'Remaining' : 'Sisa'} {slot.quota_remaining} {isEn ? 'visitors' : 'pengunjung'} {isEn ? '' : 'lagi'}
+                      <Users size={16} /> {t('schedule.remaining')} {slot.quota_remaining} {t('schedule.visitors')} {t('schedule.remainingSuffix')}
                     </p>
                   </div>
                 </motion.div>

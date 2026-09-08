@@ -11,10 +11,11 @@ import { CreditCard, TicketCheck, Timer } from 'lucide-react';
 import { useMidtransSnap } from '../hooks/useMidtransSnap';
 import toast from 'react-hot-toast';
 import { useI18n } from '../i18n/I18nContext';
+import { formatCurrency } from '../utils/format';
 
 const UserDashboard = () => {
   const { token } = useAuth();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const queryClient = useQueryClient();
   const { openSnap, isReady } = useMidtransSnap();
   const [selectedTickets, setSelectedTickets] = useState(null);
@@ -95,7 +96,7 @@ const UserDashboard = () => {
       toast.success(t('dashboard.joinQueue'));
       await checkPhotoStatus();
     } catch (e) {
-      toast.error(e?.response?.data?.message || 'Gagal masuk antrean');
+      toast.error(e?.response?.data?.message || t('booking.queueFailed'));
     }
   };
   const checkPhotoStatus = async () => {
@@ -129,7 +130,7 @@ const UserDashboard = () => {
               // Auth interceptor will handle logout + toast.
               return;
             }
-            toast.error(err.response?.data?.message || 'Gagal sinkronisasi status pembayaran');
+            toast.error(err.response?.data?.message || t('booking.syncFailed'));
           } finally {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
           }
@@ -142,7 +143,7 @@ const UserDashboard = () => {
       });
     } catch (error) {
       if (error.response?.status !== 401) {
-        toast.error(error.response?.data?.message || 'Gagal melanjutkan pembayaran');
+        toast.error(error.response?.data?.message || t('booking.resumeFailed'));
       }
       queryClient.invalidateQueries({ queryKey: ['orders'] });
     }
@@ -174,9 +175,9 @@ const UserDashboard = () => {
           </div>
         ) : null}
         <div className="grid gap-4 md:grid-cols-3">
-          <MetricCard title="Total Pembelian" value={`Rp ${stats.total.toLocaleString('id-ID')}`} icon={CreditCard} />
-          <MetricCard title="Tiket Aktif" value={stats.active} icon={TicketCheck} />
-          <MetricCard title="Jadwal Mendatang" value={stats.upcoming} icon={Timer} />
+          <MetricCard title={t('common.totalPurchase')} value={formatCurrency(stats.total, locale)} icon={CreditCard} />
+          <MetricCard title={t('dashboard.activeTickets')} value={stats.active} icon={TicketCheck} />
+          <MetricCard title={t('dashboard.upcoming')} value={stats.upcoming} icon={Timer} />
         </div>
         <section className="space-y-4">
           <div>
@@ -299,7 +300,7 @@ const UserDashboard = () => {
                 </div>
               </div>
             ) : (
-              <p className="text-ebony/70 dark:text-cream/70">Belum dalam antrean. Pilih titik foto lalu klik “Gabung Antrean”.</p>
+              <p className="text-ebony/70 dark:text-cream/70">{t('dashboard.notInQueue')}</p>
             )}
           </div>
         </section>

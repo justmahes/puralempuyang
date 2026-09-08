@@ -3,6 +3,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Calendar, Clock, CloudSun, Droplet, QrCode, RotateCcw, Sunrise, Sunset } from 'lucide-react';
 import clsx from 'clsx';
 import { useWeather } from '../../hooks/useWeather';
+import { useI18n } from '../../i18n/I18nContext';
+import { formatCurrency, numberLocale } from '../../utils/format';
+
+const statusKeys = {
+  paid: 'ticket.statusPaid',
+  pending: 'ticket.statusPending',
+  awaiting_payment: 'ticket.statusAwaiting',
+  expired: 'ticket.statusExpired',
+  cancelled: 'ticket.statusCancelled',
+};
 
 const statusColors = {
   paid: 'bg-green-100 text-green-700 dark:bg-green-600/20 dark:text-green-200',
@@ -21,14 +31,15 @@ const formatCountdown = (ms) => {
 const formatTime = (value) => (value ? value.slice(0, 5) : '-');
 const formatTemp = (value) => (typeof value === 'number' ? `${Math.round(value)}\u00B0C` : '-');
 const formatPercent = (value) => (typeof value === 'number' ? `${Math.round(value)}%` : '-');
-const formatHourFromISO = (value) => {
+const formatHourFromISO = (value, locale) => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
-  return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleTimeString(numberLocale(locale), { hour: '2-digit', minute: '2-digit' });
 };
 
 const TicketCard = ({ order, onShowQr, onContinuePayment }) => {
+  const { locale, t } = useI18n();
   const [timeLeft, setTimeLeft] = useState(null);
   const [weatherOpen, setWeatherOpen] = useState(false);
   const canViewTicket = order.status === 'paid';
@@ -61,8 +72,12 @@ const TicketCard = ({ order, onShowQr, onContinuePayment }) => {
     };
   }, [weatherData, order.start_time]);
 
+  // 'pending' ikut ditampilkan: order itu juga menahan kuota dan kini punya
+  // tenggang yang sama, jadi pemiliknya berhak melihat sisa waktunya.
+  const holdsQuota = order.status === 'pending' || order.status === 'awaiting_payment';
+
   useEffect(() => {
-    if (!order.expires_at || order.status !== 'awaiting_payment') {
+    if (!order.expires_at || !holdsQuota) {
       setTimeLeft(null);
       return undefined;
     }
@@ -75,7 +90,7 @@ const TicketCard = ({ order, onShowQr, onContinuePayment }) => {
     update();
     const timer = setInterval(update, 1000);
     return () => clearInterval(timer);
-  }, [order.expires_at, order.status]);
+  }, [order.expires_at, holdsQuota]);
 
   const canContinue = order.status === 'awaiting_payment' && (timeLeft === null || timeLeft > 0);
 
@@ -87,7 +102,7 @@ const TicketCard = ({ order, onShowQr, onContinuePayment }) => {
           <h3 className="text-xl font-semibold">{order.order_code}</h3>
         </div>
         <span className={clsx('rounded-full px-3 py-1 text-xs font-semibold', statusColors[order.status] || 'bg-gray-100 text-gray-600')}>
-          {order.status.replace('_', ' ')}
+          {statusKeys[order.status] ? t(statusKeys[order.status]) : order.status.replace('_', ' ')}
         </span>
       </div>
       <div className="mt-4 flex flex-wrap gap-4 text-sm text-ebony/70 dark:text-cream/70">
@@ -95,20 +110,20 @@ const TicketCard = ({ order, onShowQr, onContinuePayment }) => {
         <span className="flex items-center gap-2"><Clock size={16} /> {formatTime(order.start_time)} - {formatTime(order.end_time)}</span>
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2 text-sm">
-        <span className="font-semibold text-gold">Rp {Number(order.amount).toLocaleString('id-ID')}</span>
+        <span className="font-semibold text-gold">{formatCurrency(order.amount, locale)}</span>
         {canViewTicket && (
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => onShowQr?.(order)}
               className="inline-flex items-center gap-2 rounded-full border border-gold px-4 py-2 text-xs font-semibold text-gold"
             >
-              <QrCode size={16} /> Lihat Tiket
+              <QrCode size={16} /> {t('ticket.viewTicket')}
             </button>
             <button
               onClick={() => setWeatherOpen((prev) => !prev)}
               className="inline-flex items-center gap-2 rounded-full border border-cream/70 px-4 py-2 text-xs font-semibold text-ebony hover:bg-cream/40 dark:text-cream"
             >
-              <CloudSun size={16} /> Detail Cuaca
+              <CloudSun size={16} /> {t('ticket.weatherDetail')}
             </button>
           </div>
         )}
@@ -124,40 +139,40 @@ const TicketCard = ({ order, onShowQr, onContinuePayment }) => {
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className="mt-4 overflow-hidden rounded-2xl border border-cream/60 bg-white/70 p-4 text-xs shadow-inner dark:border-white/10 dark:bg-white/5"
           >
-            {weatherLoading && <p className="text-ebony/60 dark:text-cream/60">Sedang mengambil data cuaca...</p>}
-            {weatherError && <p className="text-red-600">Tidak dapat memuat cuaca untuk slot ini.</p>}
+            {weatherLoading && <p className="text-ebony/60 dark:text-cream/60">{t('ticket.weatherLoading')}</p>}
+            {weatherError && <p className="text-red-600">{t('ticket.weatherError')}</p>}
             {!weatherLoading && !weatherError && weatherSummary && (
               <div className="grid gap-3 md:grid-cols-2">
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">Suhu Slot</p>
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">{t('ticket.slotTemp')}</p>
                   <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
                     <CloudSun size={14} /> {formatTemp(weatherSummary.slotTemp)}
                   </p>
-                  <p className="text-[11px] text-ebony/60 dark:text-cream/60">Maks harian {formatTemp(weatherSummary.maxTemp)}</p>
+                  <p className="text-[11px] text-ebony/60 dark:text-cream/60">{t('ticket.dailyMax')} {formatTemp(weatherSummary.maxTemp)}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">Peluang Hujan</p>
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">{t('ticket.rainChance')}</p>
                   <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
                     <Droplet size={14} /> {formatPercent(weatherSummary.slotRain ?? weatherSummary.rainChance)}
                   </p>
-                  <p className="text-[11px] text-ebony/60 dark:text-cream/60">Tutupan awan {formatPercent(weatherSummary.slotCloud)}</p>
+                  <p className="text-[11px] text-ebony/60 dark:text-cream/60">{t('ticket.cloudCover')} {formatPercent(weatherSummary.slotCloud)}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">Sunrise</p>
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">{t('ticket.sunrise')}</p>
                   <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
-                    <Sunrise size={14} /> {formatHourFromISO(weatherSummary.sunrise)}
+                    <Sunrise size={14} /> {formatHourFromISO(weatherSummary.sunrise, locale)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">Sunset</p>
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">{t('ticket.sunset')}</p>
                   <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
-                    <Sunset size={14} /> {formatHourFromISO(weatherSummary.sunset)}
+                    <Sunset size={14} /> {formatHourFromISO(weatherSummary.sunset, locale)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">UV Index</p>
+                  <p className="text-[11px] uppercase tracking-[0.3em] text-ebony/60 dark:text-cream/60">{t('ticket.uvIndex')}</p>
                   <p className="mt-1 text-sm font-semibold">{weatherSummary.uvIndex ?? '-'}</p>
-                  <p className="text-[11px] text-ebony/60 dark:text-cream/60">Siapkan sunblock & selendang tipis</p>
+                  <p className="text-[11px] text-ebony/60 dark:text-cream/60">{t('ticket.uvTip')}</p>
                 </div>
               </div>
             )}
@@ -165,18 +180,20 @@ const TicketCard = ({ order, onShowQr, onContinuePayment }) => {
         )}
       </AnimatePresence>
 
-      {order.status === 'awaiting_payment' && (
+      {holdsQuota && (
         <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-200">
           <span>
-            Sisa waktu pembayaran: <strong>{timeLeft !== null ? formatCountdown(timeLeft) : '-'}</strong>
+            {t('ticket.timeLeft')}: <strong>{timeLeft !== null ? formatCountdown(timeLeft) : '-'}</strong>
           </span>
+          {order.status === 'awaiting_payment' && (
           <button
             onClick={() => canContinue && onContinuePayment?.(order)}
             disabled={!canContinue}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-gold px-4 py-2 text-xs font-semibold text-ebony disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <RotateCcw size={14} /> Lanjutkan Pembayaran
+            <RotateCcw size={14} /> {t('ticket.continuePayment')}
           </button>
+          )}
         </div>
       )}
     </motion.div>

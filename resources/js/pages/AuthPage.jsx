@@ -32,10 +32,18 @@ const AuthPage = ({ mode = 'login' }) => {
     user: ['/dashboard', '/profile', '/booking', '/'],
   };
 
+  // Pencocokan per segmen. Sebelumnya memakai startsWith polos, sehingga entri
+  // '/' cocok dengan SEMUA path — admin yang mendarat di /login dari /dashboard
+  // dikembalikan ke /dashboard, bukan ke /admin. Entri '/' kini hanya cocok
+  // dengan beranda, dan '/admin' tidak lagi ikut mencocoki '/administrasi'.
   const canAccess = (role, path) => {
     if (!role || !path) return false;
     const allowed = roleAccessMap[role] || [];
-    return allowed.some((allowedPath) => path.startsWith(allowedPath));
+    return allowed.some((allowedPath) =>
+      allowedPath === '/'
+        ? path === '/'
+        : path === allowedPath || path.startsWith(`${allowedPath}/`)
+    );
   };
 
   const resolveRedirect = (role) => {

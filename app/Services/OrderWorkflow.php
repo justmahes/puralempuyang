@@ -188,10 +188,18 @@ class OrderWorkflow
         return $tickets;
     }
 
+    /**
+     * Status yang masih menahan kuota slot dan karena itu wajib bisa kedaluwarsa.
+     * 'pending' termasuk: order sudah dibuat dan kuota sudah dipotong, tetapi
+     * Snap token belum pernah didapat (mis. panggilan ke Midtrans gagal). Tanpa
+     * ini order tersebut buntu selamanya dan kuotanya tidak pernah kembali.
+     */
+    public const HOLDS_QUOTA = ['pending', 'awaiting_payment'];
+
     public function expireIfTimedOut(Order $order): Order
     {
         $minutes = (int) config('payments.pending_window_minutes', 5);
-        if ($order->status === 'awaiting_payment'
+        if (in_array($order->status, self::HOLDS_QUOTA, true)
             && $order->created_at
             && $order->created_at->copy()->addMinutes($minutes)->isPast()) {
             $order->update(['status' => 'expired']);
@@ -205,7 +213,7 @@ class OrderWorkflow
 
     public function pendingExpiresAt(Order $order): ?string
     {
-        if ($order->status !== 'awaiting_payment' || !$order->created_at) {
+        if (!in_array($order->status, self::HOLDS_QUOTA, true) || !$order->created_at) {
             return null;
         }
 

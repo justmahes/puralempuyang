@@ -1,4 +1,5 @@
 import { Area, ComposedChart, Line, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { formatCurrency, formatCurrencyCompact } from '../../utils/format';
 
 const TrendChart = ({ data = [] }) => {
   const sanitized = Array.isArray(data)
@@ -13,9 +14,9 @@ const TrendChart = ({ data = [] }) => {
     <div className="glass-panel rounded-3xl p-4">
     <div className="flex items-center justify-between">
       <h3 className="font-semibold">Performa 14 Hari Terakhir</h3>
-      <span className="text-xs text-ebony/60">Pendapatan vs jumlah tiket</span>
+      <span className="text-xs text-ebony/60 dark:text-cream/60">Pendapatan vs jumlah tiket</span>
     </div>
-    <div className="h-64">
+    <div className="h-64 text-ebony/70 dark:text-cream/70">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart data={sanitized}>
           <defs>
@@ -24,11 +25,12 @@ const TrendChart = ({ data = [] }) => {
               <stop offset="100%" stopColor="#d4af37" stopOpacity={0.05} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-          <XAxis dataKey="label" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" strokeOpacity={0.2} />
+          <XAxis dataKey="label" tick={{ fontSize: 12, fill: 'currentColor' }} axisLine={false} tickLine={false} />
           <YAxis
             yAxisId="left"
-            tickFormatter={(val) => `Rp ${(val / 1000).toFixed(0)}k`}
+            tickFormatter={(val) => formatCurrencyCompact(val)}
+            tick={{ fontSize: 12, fill: 'currentColor' }}
             axisLine={false}
             tickLine={false}
             width={70}
@@ -37,6 +39,7 @@ const TrendChart = ({ data = [] }) => {
             yAxisId="right"
             orientation="right"
             tickFormatter={(val) => `${val} tkt`}
+            tick={{ fontSize: 12, fill: 'currentColor' }}
             axisLine={false}
             tickLine={false}
             width={60}
@@ -47,9 +50,9 @@ const TrendChart = ({ data = [] }) => {
               const revenue = payload.find((item) => item.dataKey === 'total');
               const tickets = payload.find((item) => item.dataKey === 'tickets');
               return (
-                <div className="rounded-2xl bg-white px-4 py-3 text-xs shadow-lg">
+                <div className="rounded-2xl bg-white px-4 py-3 text-xs text-ebony shadow-lg dark:bg-charcoal dark:text-cream">
                   <p className="font-semibold">{label}</p>
-                  {revenue && <p>Pendapatan: Rp {Number(revenue.value).toLocaleString('id-ID')}</p>}
+                  {revenue && <p>Pendapatan: {formatCurrency(revenue.value)}</p>}
                   {tickets && <p>Tiket terjual: {tickets.value}</p>}
                 </div>
               );

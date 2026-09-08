@@ -3,35 +3,34 @@ import { Link } from 'react-router-dom';
 import { ShieldCheck, Sparkles, Sunrise } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext';
 
-// Data Highlights
-const heroHighlights = [
+// Highlight & statistik dibuat sebagai fungsi dari locale. Sebelumnya berupa
+// konstanta modul berisi teks Indonesia permanen, sehingga tetap berbahasa
+// Indonesia walau situs sedang dalam mode Inggris.
+const getHeroHighlights = (isEn) => [
   {
     icon: Sunrise,
     title: 'Golden Hour Pilgrimage',
-    detail:
-      'Slot sunrise 05.30 – 08.00 WITA plus jalur foto prioritas untuk hasil terbaik.',
+    detail: isEn
+      ? 'Sunrise slots 05:30 - 08:00 WITA plus a priority photo lane for the best shots.'
+      : 'Slot sunrise 05.30 - 08.00 WITA plus jalur foto prioritas untuk hasil terbaik.',
     meta: 'Sunrise',
   },
   {
     icon: Sparkles,
     title: 'Fast Lane Booking',
-    detail:
-      'Pilih jadwal favorit, bayar via Midtrans, tiket QR terkirim kurang dari 2 menit.',
-    meta: 'Instan',
+    detail: isEn
+      ? 'Pick your schedule, pay via Midtrans, and get the QR ticket in under two minutes.'
+      : 'Pilih jadwal favorit, bayar via Midtrans, tiket QR terkirim kurang dari 2 menit.',
+    meta: isEn ? 'Instant' : 'Instan',
   },
   {
     icon: ShieldCheck,
     title: 'On-site Assistance',
-    detail:
-      'Operator siaga memvalidasi QR dan mengarahkan Anda tanpa antre panjang.',
-    meta: 'Petugas 24/7',
+    detail: isEn
+      ? 'Operators validate your QR on the spot and guide you in without a long queue.'
+      : 'Operator siaga memvalidasi QR dan mengarahkan Anda tanpa antre panjang.',
+    meta: isEn ? 'Staff 24/7' : 'Petugas 24/7',
   },
-];
-
-// Statistik Hero
-const heroStats = [
-  { label: 'Peziarah percaya', value: '120K+' },
-  { label: 'Operator aktif', value: '40+' },
 ];
 
 const getHeroContent = (locale) => {
@@ -78,6 +77,7 @@ const cardVariants = {
 const Hero = () => {
   const { locale } = useI18n();
   const content = getHeroContent(locale);
+  const heroHighlights = getHeroHighlights(locale === 'en');
 
   return (
   <section

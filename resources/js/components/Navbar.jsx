@@ -117,7 +117,7 @@ const Navbar = () => {
 
           {user ? (
             <div className="hidden items-center gap-3 md:flex">
-              <span className="hidden lg:inline text-sm font-medium">Halo {user.name.split(' ')[0]}</span>
+              <span className="hidden lg:inline text-sm font-medium">{t('common.greeting')} {user.name.split(' ')[0]}</span>
               <HeadlessMenu as="div" className="relative">
                 <HeadlessMenu.Button
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-cream/70 text-sm font-semibold hover:bg-cream/40 dark:border-white/20 dark:hover:bg-white/10"
