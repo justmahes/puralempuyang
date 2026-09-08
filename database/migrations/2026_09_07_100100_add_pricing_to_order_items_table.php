@@ -28,13 +28,28 @@ return new class extends Migration
         });
 
         // Tiket lama: seluruh order memakai satu tarif, jadi bisa disalin apa adanya.
+        // Ditulis sebagai sub-query berkorelasi, bukan UPDATE ... JOIN, supaya
+        // migrasi ini juga jalan di SQLite yang dipakai test suite.
         DB::statement('
             UPDATE order_items
-            JOIN orders ON orders.id = order_items.order_id
-            JOIN ticket_types ON ticket_types.id = orders.ticket_type_id
-            SET order_items.ticket_type_id = orders.ticket_type_id,
-                order_items.unit_price = ticket_types.price
+            SET ticket_type_id = (
+                    SELECT orders.ticket_type_id
+                    FROM orders
+                    WHERE orders.id = order_items.order_id
+                ),
+                unit_price = (
+                    SELECT ticket_types.price
+                    FROM orders
+                    INNER JOIN ticket_types ON ticket_types.id = orders.ticket_type_id
+                    WHERE orders.id = order_items.order_id
+                )
             WHERE order_items.ticket_type_id IS NULL
+              AND EXISTS (
+                    SELECT 1
+                    FROM orders
+                    INNER JOIN ticket_types ON ticket_types.id = orders.ticket_type_id
+                    WHERE orders.id = order_items.order_id
+                )
         ');
     }
 

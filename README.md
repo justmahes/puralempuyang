@@ -16,7 +16,16 @@ php artisan key:generate
 php artisan migrate --seed  # membuat tabel + admin & slot awal
 php artisan storage:link    # expose storage/app/public
 ```
-Seeder membuat akun admin `admin@puralempuyang.com / password123` dan jadwal contoh. Bila ingin mengisi lewat phpMyAdmin, import `database/mysql_seed.sql` (berisi schema + seed) kemudian update `.env` untuk menyesuaikan kredensial DB.
+Seeder membuat akun bawaan berikut beserta jadwal contoh:
+
+| Peran | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@puralempuyang.com` | `admin123` |
+| Operator | `operator@puralempuyang.com` | `operator123` |
+
+Password di atas berasal dari `database/seeders/InitialSeeder.php`. Seeder memakai `updateOrCreate`, jadi menjalankan ulang `db:seed` akan mengembalikan password ke nilai tersebut — ganti password lewat aplikasi, bukan dengan mengedit seeder.
+
+Cara yang dianjurkan untuk menyiapkan database adalah `php artisan migrate --seed` di atas. Berkas `database/db_puralempuyang.sql` hanya arsip/cadangan dan **tidak** dipakai aplikasi; isinya juga membuat database bernama `puralempuyang`, berbeda dari `db_puralempuyang` yang dirujuk `.env.example`.
 
 ### Environment Penting
 - `DB_*` : koneksi MySQL/ MariaDB Anda
