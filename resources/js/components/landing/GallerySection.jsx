@@ -6,12 +6,12 @@ const GallerySection = () => {
   const isEn = locale === 'en';
   const galleryItems = [
     {
-      title: isEn ? 'Penyineban Ceremony' : 'Prosesi Penyineban',
+      title: isEn ? 'Temple Pemangku' : 'Pemangku Pura',
       caption: isEn
-        ? 'A quiet moment as the first incense is lit, wrapped in valley mist.'
-        : 'Momen teduh ketika dupa pertama dinyalakan, ditemani kabut lembah.',
+        ? 'Pemangku wait in the pavilion, keeping the rhythm of every ceremony calm.'
+        : 'Pemangku menanti di bale pura, menjaga ritme setiap upacara tetap tenang.',
       tag: isEn ? 'Ceremony' : 'Upacara',
-      image: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=900&q=80',
+      image: '/images/gallery/upacara-pemangku-lempuyang.jpg',
     },
     {
       title: isEn ? 'Gate of Heaven' : 'Gerbang Surga',
@@ -19,23 +19,24 @@ const GallerySection = () => {
         ? 'Mount Agung silhouettes create a favorite photo backdrop.'
         : 'Siluet Gunung Agung menjadi latar foto favorit wisatawan mancanegara.',
       tag: isEn ? 'Panorama' : 'Panorama',
-      image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80',
+      image: '/images/gallery/gate-of-heaven-gunung-agung.jpg',
+      objectPosition: 'center bottom',
     },
     {
-      title: isEn ? 'Canang Ritual' : 'Ritual Canang',
+      title: isEn ? 'Canang Sari' : 'Canang Sari',
       caption: isEn
-        ? 'Locals prepare canang sari offerings before groups enter the courtyard.'
-        : 'Ibu-ibu krama menyiapkan canang sari sebelum rombongan memasuki pelataran.',
+        ? 'Offerings arranged each morning greet visitors at the courtyard.'
+        : 'Canang sari yang dirangkai setiap pagi menyambut umat di pelataran pura.',
       tag: isEn ? 'Culture' : 'Budaya',
-      image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+      image: '/images/gallery/canang-sari.jpg',
     },
     {
-      title: isEn ? 'Hiking Trail' : 'Jalur Mendaki',
+      title: isEn ? 'Stairway to the Temple' : 'Jalur Tangga Pura',
       caption: isEn
-        ? 'Lush trees along the path always bring fresh mountain air.'
-        : 'Rimbun pepohonan menuju Pura Lempuyang selalu menghadirkan udara segar.',
+        ? 'Long stone steps to the main courtyard, flanked by paduraksa gates.'
+        : 'Anak tangga batu menuju pelataran utama, diapit gerbang paduraksa.',
       tag: isEn ? 'Journey' : 'Perjalanan',
-      image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80',
+      image: '/images/gallery/jalur-tangga-pura-lempuyang.jpg',
     },
   ];
 
@@ -69,6 +70,7 @@ const GallerySection = () => {
               src={item.image}
               alt={item.title}
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              style={{ objectPosition: item.objectPosition ?? 'center' }}
               loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-ebony/80 via-ebony/30 to-transparent" />
@@ -82,6 +84,11 @@ const GallerySection = () => {
           </motion.div>
         ))}
       </div>
+      <p className="mt-6 text-center text-xs text-ebony/50 dark:text-cream/50">
+        {isEn ? 'Photos: ' : 'Foto: '}
+        Vyacheslav Argenberg (CC BY 4.0), Azeusss (CC0), Enrico Strocchi (CC BY-SA 2.0),
+        yeowatzup (CC BY 2.0) &middot; Wikimedia Commons
+      </p>
     </div>
   </section>
   );

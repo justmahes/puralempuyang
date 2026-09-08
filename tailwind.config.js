@@ -20,9 +20,6 @@ export default {
       boxShadow: {
         glow: '0 20px 60px rgba(0,0,0,0.1)',
       },
-      backgroundImage: {
-        'hero-gate': "linear-gradient(135deg, rgba(10,10,10,0.7), rgba(26,26,26,0.4)), url('https://images.unsplash.com/photo-1520694478166-daaaaec95b69?auto=format&fit=crop&w=1600&q=80')",
-      },
     },
   },
   plugins: [],
