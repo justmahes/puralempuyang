@@ -19,3 +19,6 @@ yarn-error.log
 .DS_Store
 Thumbs.db
 public/build
+
+# Dokumen skripsi (tidak disimpan di repo)
+*.docx
